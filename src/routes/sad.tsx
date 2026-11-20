@@ -1,20 +1,21 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { BookButton, meta } from "@/components/site";
-import { MAX_BRANCHES, addCare, branches, empty, planLeft, type Care, type GardenState } from "@/lib/garden";
+import { CopyButton, TG_BOOK, meta } from "@/components/site";
+import { MAX_BRANCHES, SCALES, addCare, branches, diarySummary, empty, planLeft, type Care, type DiaryEntry, type GardenState } from "@/lib/garden";
 
 export const Route = createFileRoute("/sad")({
-  head: () => meta("Зимний сад заботы · Север помнит", "Отмечайте сеансы, воду и растяжку — и смотрите, как распускаются веточки и зажигаются тёплые огоньки."),
+  head: () => meta("Зимний сад заботы · Север помнит", "Мини-дневник самочувствия и сад, который растёт от маленьких дел заботы: вода, растяжка, сеанс массажа."),
   component: Garden,
 });
 
 const KEY = "sever-garden-v1";
+const DKEY = "sever-diary-v1";
 const actions: { id: Care; label: string; hint: string; emoji: string }[] = [
-  { id: "session", label: "Был сеанс", hint: "+ ветка и огонёк", emoji: "🕯" },
-  { id: "water", label: "Выпил(а) воды", hint: "+ капля роста", emoji: "💧" },
-  { id: "stretch", label: "Потянулся(лась)", hint: "+ две капли роста", emoji: "🌿" },
+  { id: "session", label: "Сеанс массажа", hint: "ветка и огонёк", emoji: "🕯" },
+  { id: "water", label: "Стакан воды", hint: "капля роста", emoji: "💧" },
+  { id: "stretch", label: "Мягкая растяжка", hint: "две капли роста", emoji: "🌿" },
 ];
-const cheers = ["Тело это запомнит.", "Север помнит.", "Тепло прибавилось.", "Маленький шаг — тоже шаг.", "Веточка проснулась."];
+const cheers = ["Тело сказало спасибо. Сад расцветает.", "Ещё одна капелька заботы.", "Тело это запомнит.", "Север помнит.", "Тепло прибавилось.", "Маленький шаг — тоже шаг.", "Веточка проснулась."];
 
 // branch geometry: alternating sides up the trunk
 const B = Array.from({ length: MAX_BRANCHES }, (_, i) => {
@@ -27,7 +28,14 @@ const B = Array.from({ length: MAX_BRANCHES }, (_, i) => {
 function Garden() {
   const [s, setS] = useState<GardenState>(empty);
   const [msg, setMsg] = useState("");
-  useEffect(() => { try { const v = localStorage.getItem(KEY); if (v) setS({ ...empty, ...JSON.parse(v) }); } catch {} }, []);
+  const [diary, setDiary] = useState<DiaryEntry[]>([]);
+  const [draft, setDraft] = useState({ energy: 3, sleep: 3, lightness: 3, mood: 3, note: "" });
+  useEffect(() => { try { const v = localStorage.getItem(KEY); if (v) setS({ ...empty, ...JSON.parse(v) }); const d = localStorage.getItem(DKEY); if (d) setDiary(JSON.parse(d)); } catch {} }, []);
+  const saveEntry = () => {
+    const e: DiaryEntry = { ...draft, date: new Date().toLocaleDateString("ru-RU", { day: "2-digit", month: "2-digit" }) };
+    const next = [...diary, e].slice(-30); setDiary(next); localStorage.setItem(DKEY, JSON.stringify(next));
+    save(addCare(s, "diary")); setDraft({ ...draft, note: "" }); setMsg("Спасибо, что прислушались к себе.");
+  };
   const save = (n: GardenState) => { setS(n); localStorage.setItem(KEY, JSON.stringify(n)); };
   const n = branches(s);
   const lights = Math.min(n, s.session);
@@ -57,15 +65,15 @@ function Garden() {
               );
             })}
           </svg>
-          <p className="text-center text-sm text-muted-foreground">{n} из {MAX_BRANCHES} веточек · {lights} огоньков</p>
+          <p className="text-center font-display text-lg italic text-muted-foreground">{n === 0 ? "Сад ждёт первую каплю заботы" : n >= MAX_BRANCHES ? "Сад в полном цвету" : "Сад тихо растёт"}</p>
         </div>
 
         <div className="space-y-4">
           {actions.map((a) => (
-            <button key={a.id} onClick={() => { save(addCare(s, a.id)); setMsg(cheers[Math.floor(Math.random() * cheers.length)] ?? ""); }}
+            <button key={a.id} onClick={() => { save(addCare(s, a.id as Care)); setMsg(cheers[Math.floor(Math.random() * cheers.length)] ?? ""); }}
               className="flex w-full items-center gap-4 rounded-2xl border bg-card/70 p-5 text-left transition hover:border-primary/60 active:scale-[0.99]">
               <span className="text-3xl" aria-hidden>{a.emoji}</span>
-              <span><span className="block text-lg font-medium">{a.label}</span><span className="text-sm text-muted-foreground">{a.hint} · уже {s[a.id]}</span></span>
+              <span><span className="block text-lg font-medium">{a.label}</span><span className="text-sm text-muted-foreground">{a.hint}</span></span>
             </button>
           ))}
           <p className="min-h-6 text-center font-display text-xl italic text-amber" aria-live="polite">{msg}</p>
@@ -87,17 +95,43 @@ function Garden() {
                     <span key={i} className={`h-5 w-5 rounded-full border border-primary/60 ${i < s.planUsed ? "bg-amber glow" : ""}`} />
                   ))}
                 </div>
-                <p className="mt-2 text-sm text-muted-foreground">{planLeft(s) ? `Осталось ${planLeft(s)} — отмечается кнопкой «Был сеанс»` : "Абонемент пройден целиком. Вы большая молодец!"}</p>
+                <p className="mt-2 text-sm text-muted-foreground">{planLeft(s) ? `Осталось ${planLeft(s)} — отмечается кнопкой «Сеанс массажа»` : "Абонемент пройден целиком. Вы большая молодец!"}</p>
               </>
             )}
           </div>
           <div className="flex items-center justify-between gap-3 pt-2">
-            <BookButton>Вырастить ветку — записаться</BookButton>
-            <button onClick={() => confirm("Начать сад заново?") && save(empty)} className="text-xs text-muted-foreground underline">начать заново</button>
+            <span />
+            <button onClick={() => confirm("Точно начать сад заново? Веточки и огоньки исчезнут, дневник останется.") && save(empty)} className="min-h-11 text-xs text-muted-foreground underline">начать заново</button>
           </div>
-          <p className="text-xs text-muted-foreground">Сад хранится на этом устройстве.</p>
+          <p className="text-xs text-muted-foreground">Сад и дневник хранятся только на этом устройстве.</p>
         </div>
       </div>
+      <section className="mt-16 rounded-[2rem] border bg-card/60 p-7">
+        <h2 className="text-4xl">Дневник самочувствия</h2>
+        <p className="mt-2 max-w-xl text-muted-foreground">Когда захочется — отметьте, как вы сегодня. Без обязательств: пропуски никто не считает. Каждая запись поливает сад.</p>
+        <div className="mt-8 grid gap-6 md:grid-cols-2">
+          {SCALES.map((sc) => (
+            <label key={sc.key} className="block">
+              <span className="flex justify-between"><span className="font-medium">{sc.label}</span><span className="text-amber">{draft[sc.key]}/5</span></span>
+              <input type="range" min={1} max={5} value={draft[sc.key]} onChange={(e) => setDraft({ ...draft, [sc.key]: Number(e.target.value) })} className="mt-2 w-full accent-[var(--amber)]" />
+              <span className="flex justify-between text-xs text-muted-foreground"><span>{sc.low}</span><span>{sc.high}</span></span>
+            </label>
+          ))}
+        </div>
+        <textarea value={draft.note} onChange={(e) => setDraft({ ...draft, note: e.target.value })} placeholder="Пара слов для себя: где тянет, что радует, как кожа…" rows={2} className="mt-6 w-full rounded-2xl border bg-background/60 p-4" />
+        <div className="mt-4 flex flex-wrap gap-3">
+          <button onClick={saveEntry} className="inline-flex min-h-11 items-center rounded-full bg-primary px-7 py-3 font-medium text-primary-foreground glow">Сохранить запись</button>
+          {diary.length > 0 && <CopyButton text={diarySummary(diary)}>Скопировать для Александры</CopyButton>}
+          {diary.length > 0 && <a href={TG_BOOK} target="_blank" rel="noreferrer" className="inline-flex min-h-11 items-center px-3 text-muted-foreground underline">открыть Telegram</a>}
+        </div>
+        {diary.length > 0 && (
+          <ul className="mt-8 divide-y divide-border text-sm">
+            {diary.slice(-5).reverse().map((e, i) => (
+              <li key={i} className="py-3 text-muted-foreground"><span className="text-foreground">{e.date}</span> · {SCALES.map((sc) => `${sc.label.toLowerCase()} ${e[sc.key]}`).join(" · ")}{e.note && <> — {e.note}</>}</li>
+            ))}
+          </ul>
+        )}
+      </section>
     </div>
   );
 }

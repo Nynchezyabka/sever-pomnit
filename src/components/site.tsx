@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Link } from "@tanstack/react-router";
 import logo from "@/assets/logo.jpg.asset.json";
 
@@ -93,4 +94,25 @@ export function meta(title: string, description: string) {
       { name: "twitter:card", content: "summary_large_image" },
     ],
   };
+}
+
+/** Reserved spot for a photo that will be sent later. */
+export function PhotoSlot({ label, className = "" }: { label: string; className?: string }) {
+  return (
+    <div className={`flex items-center justify-center rounded-[2rem] border border-dashed border-primary/40 bg-card/50 p-6 text-center text-sm text-muted-foreground ${className}`}>
+      <span>Здесь будет фото<br /><span className="font-display text-lg italic text-amber">{label}</span></span>
+    </div>
+  );
+}
+
+export const BOOK_TEMPLATE = "Здравствуйте, Александра! Хочу записаться на массаж (например, спины). Мне удобно в такие дни/время: … Я у вас впервые.";
+
+export function CopyButton({ text, children }: { text: string; children: React.ReactNode }) {
+  const [done, setDone] = useState(false);
+  return (
+    <button type="button" onClick={async () => { try { await navigator.clipboard.writeText(text); setDone(true); setTimeout(() => setDone(false), 2500); } catch {} }}
+      className="inline-flex min-h-11 items-center justify-center rounded-full border border-primary/50 px-6 py-3 font-medium transition hover:bg-primary/10">
+      {done ? "Скопировано ✓" : children}
+    </button>
+  );
 }

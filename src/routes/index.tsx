@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { BookButton, GhostButton, Logo, TG_BOOK, meta } from "@/components/site";
+import { BOOK_TEMPLATE, BookButton, CopyButton, Logo, PhotoSlot, TG_BOOK, meta } from "@/components/site";
 import tea from "@/assets/tea-card.jpg.asset.json";
 import ginger from "@/assets/gingerbread.jpg.asset.json";
 import mood from "@/assets/moodboard.jpg.asset.json";
@@ -28,7 +28,7 @@ function Index() {
           </p>
           <div className="mt-9 flex flex-wrap gap-3">
             <BookButton />
-            <GhostButton href={TG_BOOK}>Подарить сертификат</GhostButton>
+            <Link to="/menu" hash="gift" className="inline-flex min-h-11 items-center px-3 text-muted-foreground underline underline-offset-4 hover:text-foreground">Подарить заботу</Link>
           </div>
           <p className="mt-5 text-sm text-muted-foreground">Вт–Сб, 8:30–22:00 · ЖК «Полярная 25»</p>
         </div>
@@ -54,6 +54,42 @@ function Index() {
         </div>
       </section>
 
+
+      <section className="mx-auto max-w-6xl px-5 py-16">
+        <p className="text-sm uppercase tracking-[0.25em] text-amber">С чем приходят</p>
+        <h2 className="mt-3 text-4xl md:text-5xl">Если узнаёте себя — вам сюда</h2>
+        <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          {[
+            ["Плечи у ушей", "Шея и спина затекли от экрана и телефона."],
+            ["Фоновая тревога", "Голова не выключается, хочется просто полежать в тишине."],
+            ["Тяжесть и отёки", "Ноги гудят, тело как будто чужое и тяжёлое."],
+            ["Замёрзли", "Хочется согреться — снаружи и немного внутри."],
+          ].map(([t, d]) => (
+            <div key={t} className="rounded-3xl border bg-card/70 p-6"><h3 className="text-2xl">{t}</h3><p className="mt-2 text-muted-foreground">{d}</p></div>
+          ))}
+        </div>
+      </section>
+
+      <section className="mx-auto max-w-6xl px-5 py-16">
+        <p className="text-sm uppercase tracking-[0.25em] text-amber">Запись</p>
+        <h2 className="mt-3 text-4xl md:text-5xl">Записаться в три шага</h2>
+        <ol className="mt-10 grid gap-4 md:grid-cols-3">
+          {[
+            ["1. Скопируйте сообщение", "Не нужно придумывать, что писать незнакомому человеку — шаблон уже готов."],
+            ["2. Отправьте в Telegram", "Александра отвечает между сеансами, обычно в течение дня."],
+            ["3. Приходите налегке", "Простыни, полотенца и чай уже ждут. Можно просто прийти."],
+          ].map(([t, d]) => (
+            <li key={t} className="rounded-3xl border bg-card/70 p-6"><h3 className="text-2xl">{t}</h3><p className="mt-2 text-muted-foreground">{d}</p></li>
+          ))}
+        </ol>
+        <div className="mt-8 flex flex-wrap gap-3"><CopyButton text={BOOK_TEMPLATE}>Скопировать сообщение</CopyButton><BookButton>Открыть Telegram</BookButton></div>
+      </section>
+
+      <section className="mx-auto grid max-w-6xl gap-6 px-5 py-8 md:grid-cols-2">
+        <PhotoSlot label="кабинет и тёплый свет" className="aspect-[4/3]" />
+        <PhotoSlot label="настоящий рог лося" className="aspect-[4/3]" />
+      </section>
+
       <section className="mx-auto grid max-w-6xl gap-6 px-5 py-16 md:grid-cols-2">
         <Link to="/menu" className="group relative overflow-hidden rounded-[2rem]">
           <img src={mood.url} alt="Хвоя, мох и травяной чай" className="aspect-[4/3] w-full object-cover transition duration-700 group-hover:scale-105" />
@@ -64,7 +100,7 @@ function Index() {
         <Link to="/sad" className="group relative overflow-hidden rounded-[2rem]">
           <img src={ginger.url} alt="Пряник с логотипом и травяной чай" className="aspect-[4/3] w-full object-cover transition duration-700 group-hover:scale-105" />
           <div className="absolute inset-0 flex flex-col justify-end bg-gradient-to-t from-background/90 to-transparent p-7">
-            <h3 className="text-3xl">Зимний сад заботы</h3><p className="text-muted-foreground">Выпили воды, потянулись, сходили на сеанс — дерево растёт →</p>
+            <h3 className="text-3xl">Зимний сад заботы</h3><p className="text-muted-foreground">Дневник самочувствия и дерево, которое растёт вместе с вами →</p>
           </div>
         </Link>
       </section>
