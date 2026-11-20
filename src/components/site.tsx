@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import logo from "@/assets/logo.jpg.asset.json";
-import { BotanicalSprig } from "@/components/botanical";
 
 export const TG_BOOK = "https://t.me/Sashsa_S";
 export const TG_CHANNEL = "https://t.me/massage_sever_pomnit";
@@ -101,7 +100,6 @@ export function meta(title: string, description: string) {
 export function PhotoSlot({ label, className = "" }: { label: string; className?: string }) {
   return (
     <div className={`relative flex items-center justify-center overflow-hidden rounded-[2rem] border border-dashed border-primary/40 bg-card/50 p-6 text-center text-sm text-muted-foreground ${className}`}>
-      <BotanicalSprig variant="grass" className="absolute -bottom-10 -right-4 h-48 w-28 rotate-12 text-moss/30" />
       <span className="relative">Здесь будет фото<br /><span className="font-display text-lg italic text-amber">{label}</span></span>
     </div>
   );
