@@ -125,3 +125,42 @@ GRANT EXECUTE ON FUNCTION public.use_session(uuid, text) TO authenticated;
 -- INSERT INTO public.user_roles (user_id, role)
 -- SELECT id, 'master' FROM auth.users WHERE email = 'почта-александры@example.com'
 -- ON CONFLICT DO NOTHING;
+
+-- 8. Оповещения Александре в Telegram о новых регистрациях
+CREATE EXTENSION IF NOT EXISTS pg_net;
+CREATE TABLE IF NOT EXISTS public.bot_settings (
+  id int PRIMARY KEY DEFAULT 1 CHECK (id = 1),
+  bot_token text NOT NULL DEFAULT '',
+  chat_id text NOT NULL DEFAULT ''
+);
+REVOKE ALL ON public.bot_settings FROM anon, authenticated;
+ALTER TABLE public.bot_settings ENABLE ROW LEVEL SECURITY;
+INSERT INTO public.bot_settings (id) VALUES (1) ON CONFLICT DO NOTHING;
+
+CREATE OR REPLACE FUNCTION public.notify_master(_text text) RETURNS void
+LANGUAGE plpgsql SECURITY DEFINER SET search_path = public AS $$
+DECLARE b public.bot_settings;
+BEGIN
+  SELECT * INTO b FROM public.bot_settings WHERE id = 1;
+  IF b.bot_token = '' OR b.chat_id = '' THEN RETURN; END IF;
+  PERFORM net.http_post(
+    url := 'https://api.telegram.org/bot' || b.bot_token || '/sendMessage',
+    body := jsonb_build_object('chat_id', b.chat_id, 'text', _text),
+    headers := '{"Content-Type":"application/json"}'::jsonb
+  );
+END $$;
+REVOKE EXECUTE ON FUNCTION public.notify_master(text) FROM PUBLIC, anon, authenticated;
+
+CREATE OR REPLACE FUNCTION public.on_new_profile() RETURNS trigger
+LANGUAGE plpgsql SECURITY DEFINER SET search_path = public AS $$
+BEGIN
+  PERFORM public.notify_master('🌿 Новый клиент в кабинете: ' || coalesce(nullif(NEW.full_name,''),'без имени')
+    || coalesce(' · ' || nullif(NEW.phone,''), ''));
+  RETURN NEW;
+EXCEPTION WHEN others THEN RETURN NEW; -- оповещение не должно мешать регистрации
+END $$;
+DROP TRIGGER IF EXISTS profile_notify ON public.profiles;
+CREATE TRIGGER profile_notify AFTER INSERT ON public.profiles FOR EACH ROW EXECUTE FUNCTION public.on_new_profile();
+
+-- Чтобы включить оповещения, выполните отдельно (подставьте свои значения):
+-- UPDATE public.bot_settings SET bot_token = '123456:ABC...', chat_id = '123456789' WHERE id = 1;
