@@ -24,7 +24,7 @@ export function TeaRitual() {
   const [tea, setTea] = useState("");
   const msg = ritualMessage(oil, tea);
   return (
-    <section className="mx-auto max-w-6xl px-5 py-16">
+    <section className="mx-auto max-w-6xl px-5 py-10 md:py-16">
       <p className="text-sm uppercase tracking-[0.2em] text-amber">Ритуал перед визитом</p>
       <h2 className="mt-2 font-display text-4xl">Выберите аромат и чай</h2>
       <p className="mt-3 max-w-2xl text-muted-foreground">Необязательно — но приятно, когда вас уже ждут. Можно передумать прямо на сеансе.</p>

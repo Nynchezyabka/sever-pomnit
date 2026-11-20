@@ -13,7 +13,7 @@ function Menu() {
   return (
     <div className="mx-auto max-w-6xl px-5 py-14">
       <p className="text-sm uppercase tracking-[0.25em] text-amber">Меню заботы</p>
-      <h1 className="mt-3 text-5xl md:text-6xl">Выберите, чего просит тело</h1>
+      <h1 className="mt-3 text-4xl sm:text-5xl md:text-6xl">Выберите, чего просит тело</h1>
       <p className="mt-4 max-w-xl text-muted-foreground">Не знаете, что выбрать? Напишите Александре пару слов о самочувствии — она подскажет.</p>
 
       <div className="mt-8 grid gap-3 sm:grid-cols-3">
@@ -28,7 +28,7 @@ function Menu() {
 
       <div className="mt-12 grid gap-6 lg:grid-cols-2">
         {groups.map((g) => (
-          <section key={g.title} className="rounded-3xl border bg-card/70 p-7">
+          <section key={g.title} className="rounded-3xl border bg-card/70 p-5 sm:p-7">
             <h2 className="text-3xl">{g.title}</h2>
             <p className="mb-5 text-sm text-muted-foreground">{g.intro}</p>
             <ul className="divide-y divide-border">
@@ -44,7 +44,7 @@ function Menu() {
             </ul>
           </section>
         ))}
-        <section className="rounded-3xl border border-primary/40 bg-card/70 p-7">
+        <section className="rounded-3xl border border-primary/40 bg-card/70 p-5 sm:p-7">
           <h2 className="text-3xl">Сезонные ритуалы с северными травами</h2>
           <p className="mt-3 text-muted-foreground">Распаривание трав, согревающие масла с хвоей и можжевельником, травяной чай после сеанса. Состав ритуала меняется вместе с сезоном.</p>
           <p className="mt-3 rounded-xl border border-dashed border-primary/40 p-3 text-sm text-muted-foreground">Зимний ритуал: название, длительность и цена появятся здесь совсем скоро.</p>
@@ -53,7 +53,7 @@ function Menu() {
       </div>
 
       <section className="mt-6 grid gap-6 lg:grid-cols-2">
-        <div className="rounded-3xl border bg-card/70 p-7">
+        <div className="rounded-3xl border bg-card/70 p-5 sm:p-7">
           <h2 className="text-3xl">Абонементы на любой массаж</h2>
           <ul className="mt-4 space-y-3">
             <li className="flex justify-between gap-4"><span>5 сеансов · 1,5 месяца</span><span className="text-amber">−10%</span></li>

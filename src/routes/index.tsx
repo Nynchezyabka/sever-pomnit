@@ -24,7 +24,7 @@ function Index() {
       <section className="mx-auto grid max-w-6xl items-center gap-12 px-5 pb-16 pt-14 md:grid-cols-[1.1fr_0.9fr] md:pt-24">
         <div>
           <p className="mb-5 text-sm uppercase tracking-[0.25em] text-amber">Пространство ручного массажа и заботы</p>
-          <h1 className="text-5xl leading-[1.05] md:text-7xl">Здесь можно <em className="text-amber">не спешить</em></h1>
+          <h1 className="text-4xl leading-[1.08] sm:text-5xl md:text-7xl">Здесь можно <em className="text-amber">не спешить</em></h1>
           <p className="mt-6 max-w-lg text-lg text-muted-foreground">
             Тёплое убежище от холода и шума города. Северные травы, согревающие масла, приглушённый свет — и только чуткие живые руки.
           </p>
@@ -32,7 +32,7 @@ function Index() {
             <BookButton />
             <Link to="/menu" hash="gift" className="inline-flex min-h-11 items-center px-3 text-muted-foreground underline underline-offset-4 hover:text-foreground">Подарить заботу</Link>
           </div>
-          <p className="mt-5 text-sm text-muted-foreground">Вт–Сб, 8:30–22:00 · ЖК «Полярная 25»</p>
+          <p className="mt-5 text-sm text-muted-foreground">Вт–Сб, 8:30–22:00 · <span className="whitespace-nowrap">ЖК «Полярная 25»</span></p>
         </div>
         <div className="relative isolate">
           <img src={tea.url} alt="Чай с хвоей, шишки, свеча и открытка «Здесь можно не спешить»" className="aspect-[4/5] w-full rounded-[2rem] object-cover shadow-2xl" />
@@ -40,15 +40,15 @@ function Index() {
         </div>
       </section>
 
-      <section className="mx-auto max-w-6xl px-5 py-16">
+      <section className="mx-auto max-w-6xl px-5 py-10 md:py-16">
         <div className="max-w-2xl">
           <p className="text-sm uppercase tracking-[0.25em] text-amber">Манифест</p>
-          <h2 className="mt-3 text-4xl md:text-5xl">Почему только руки?</h2>
+          <h2 className="mt-3 text-3xl sm:text-4xl md:text-5xl">Почему только руки?</h2>
           <p className="mt-4 text-lg text-muted-foreground">Никаких аппаратов, конвейера и «надо было раньше прийти». Ваше тело — не проблема, которую чинят. С ним разговаривают.</p>
         </div>
         <div className="mt-10 grid gap-4 sm:grid-cols-2">
           {reasons.map((r) => (
-            <div key={r.t} className="rounded-3xl border bg-card/70 p-7">
+            <div key={r.t} className="rounded-3xl border bg-card/70 p-5 sm:p-7">
               <h3 className="text-2xl">{r.t}</h3>
               <p className="mt-2 text-muted-foreground">{r.d}</p>
             </div>
@@ -57,9 +57,9 @@ function Index() {
       </section>
 
 
-      <section className="mx-auto max-w-6xl px-5 py-16">
+      <section className="mx-auto max-w-6xl px-5 py-10 md:py-16">
         <p className="text-sm uppercase tracking-[0.25em] text-amber">С чем приходят</p>
-        <h2 className="mt-3 text-4xl md:text-5xl">Если узнаёте себя — вам сюда</h2>
+        <h2 className="mt-3 text-3xl sm:text-4xl md:text-5xl">Если узнаёте себя — вам сюда</h2>
         <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {[
             ["Плечи у ушей", "Шея и спина затекли от экрана и телефона."],
@@ -72,9 +72,9 @@ function Index() {
         </div>
       </section>
 
-      <section className="mx-auto max-w-6xl px-5 py-16">
+      <section className="mx-auto max-w-6xl px-5 py-10 md:py-16">
         <p className="text-sm uppercase tracking-[0.25em] text-amber">Запись</p>
-        <h2 className="mt-3 text-4xl md:text-5xl">Записаться в три шага</h2>
+        <h2 className="mt-3 text-3xl sm:text-4xl md:text-5xl">Записаться в три шага</h2>
         <ol className="mt-10 grid gap-4 md:grid-cols-3">
           {[
             ["1. Скопируйте сообщение", "Не нужно придумывать, что писать незнакомому человеку — шаблон уже готов."],
@@ -94,16 +94,16 @@ function Index() {
         <PhotoSlot label="настоящий рог лося" className="aspect-[4/3]" />
       </section>
 
-      <section className="mx-auto grid max-w-6xl gap-6 px-5 py-16 md:grid-cols-2">
+      <section className="mx-auto grid max-w-6xl gap-6 px-5 py-10 md:py-16 md:grid-cols-2">
         <Link to="/menu" className="group relative overflow-hidden rounded-[2rem]">
           <img src={mood.url} alt="Хвоя, мох и травяной чай" className="aspect-[4/3] w-full object-cover transition duration-700 group-hover:scale-105" />
-          <div className="absolute inset-0 flex flex-col justify-end bg-gradient-to-t from-background/90 to-transparent p-7">
+          <div className="absolute inset-0 flex flex-col justify-end bg-gradient-to-t from-background/90 to-transparent p-5 sm:p-7">
             <h3 className="text-3xl">Меню заботы</h3><p className="text-muted-foreground">Массаж тела и лица, лимфодренаж, ритуалы, абонементы →</p>
           </div>
         </Link>
         <Link to="/sad" className="group relative overflow-hidden rounded-[2rem]">
           <img src={ginger.url} alt="Пряник с логотипом и травяной чай" className="aspect-[4/3] w-full object-cover transition duration-700 group-hover:scale-105" />
-          <div className="absolute inset-0 flex flex-col justify-end bg-gradient-to-t from-background/90 to-transparent p-7">
+          <div className="absolute inset-0 flex flex-col justify-end bg-gradient-to-t from-background/90 to-transparent p-5 sm:p-7">
             <h3 className="text-3xl">Зимний сад заботы</h3><p className="text-muted-foreground">Дневник самочувствия и дерево, которое растёт вместе с вами →</p>
           </div>
         </Link>

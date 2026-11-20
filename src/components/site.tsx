@@ -25,16 +25,16 @@ const nav = [
 export function Header() {
   return (
     <header className="sticky top-0 z-20 border-b bg-background/85 backdrop-blur">
-      <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-5 py-3">
-        <Link to="/" className="flex items-center gap-3">
-          <Logo className="h-11 w-8" />
+      <div className="mx-auto flex max-w-6xl flex-col gap-2 px-4 py-2.5 sm:flex-row sm:items-center sm:justify-between sm:gap-4 sm:px-5 sm:py-3">
+        <Link to="/" className="flex shrink-0 items-center gap-3">
+          <Logo className="h-9 w-7 shrink-0 sm:h-11 sm:w-8" />
           <span className="font-display text-xl tracking-wide">Север помнит</span>
         </Link>
-        <nav className="flex flex-wrap gap-1 text-sm">
+        <nav className="-mx-4 flex gap-1 overflow-x-auto px-4 text-sm [scrollbar-width:none] sm:mx-0 sm:flex-wrap sm:px-0">
           {nav.map((n) => (
             <Link key={n.to} to={n.to} activeOptions={{ exact: true }}
-              className="rounded-full px-3 py-1.5 text-muted-foreground transition-colors hover:text-foreground"
-              activeProps={{ className: "rounded-full px-3 py-1.5 bg-secondary text-foreground" }}>
+              className="shrink-0 whitespace-nowrap rounded-full px-3 py-1.5 text-muted-foreground transition-colors hover:text-foreground"
+              activeProps={{ className: "shrink-0 whitespace-nowrap rounded-full px-3 py-1.5 bg-secondary text-foreground" }}>
               {n.label}
             </Link>
           ))}
@@ -54,7 +54,7 @@ export function Footer() {
         </div>
         <div>
           <p>Вт–Сб, 8:30–22:00</p>
-          <p>ЖК «Полярная 25»</p>
+          <p className="whitespace-nowrap">ЖК «Полярная 25»</p>
         </div>
         <div className="flex flex-col gap-1">
           <a href={TG_BOOK} className="hover:text-foreground">Записаться: @Sashsa_S</a>

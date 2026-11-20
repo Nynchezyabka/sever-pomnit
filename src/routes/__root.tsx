@@ -12,6 +12,7 @@ import { useEffect, type ReactNode } from "react";
 
 import { Header, Footer, FloatingTelegram } from "@/components/site";
 import appCss from "../styles.css?url";
+import { useTypograf } from "@/hooks/use-typograf";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 
 function NotFoundComponent() {
@@ -129,6 +130,7 @@ function RootShell({ children }: { children: ReactNode }) {
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
+  useTypograf();
 
   return (
     <QueryClientProvider client={queryClient}>

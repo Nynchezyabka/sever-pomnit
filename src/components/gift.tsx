@@ -99,7 +99,7 @@ export function GiftBuilder() {
             {g.recipient.trim() && <p className="mt-3 text-lg">{g.recipient.trim()}</p>}
             <p className="mx-auto mt-6 max-w-xs text-foreground/90">{giftTitle(g)}</p>
             <div className="mx-auto mt-8 h-px w-24 bg-primary/40" />
-            <p className="mt-4 text-xs text-muted-foreground">Александра Суворова · ЖК «Полярная 25»<br />по предварительной записи · {PHONE}</p>
+            <p className="mt-4 text-xs text-muted-foreground">Александра Суворова · <span className="whitespace-nowrap">ЖК «Полярная 25»</span><br />по предварительной записи · {PHONE}</p>
           </div>
           <p className="mt-4 text-sm text-muted-foreground">Это предпросмотр. Настоящий сертификат Александра оформит и передаст после оплаты.</p>
           <div className="mt-5 flex flex-wrap gap-3">
