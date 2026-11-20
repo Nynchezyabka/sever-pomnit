@@ -3,6 +3,7 @@ import { BOOK_TEMPLATE, BookButton, CopyButton, Logo, PhotoSlot, TG_BOOK, meta }
 import { TeaRitual } from "@/components/ritual";
 import tea from "@/assets/tea-card.jpg.asset.json";
 import ginger from "@/assets/gingerbread.jpg.asset.json";
+import sign from "@/assets/amber_sign.jpg.asset.json";
 import mood from "@/assets/moodboard.jpg.asset.json";
 
 export const Route = createFileRoute("/")({
@@ -89,7 +90,7 @@ function Index() {
       <TeaRitual />
 
       <section className="mx-auto grid max-w-6xl gap-6 px-5 py-8 md:grid-cols-2">
-        <PhotoSlot label="кабинет и тёплый свет" className="aspect-[4/3]" />
+        <figure className="overflow-hidden rounded-[2rem]"><img src={sign.url} alt="Янтарная светящаяся вывеска «Север помнит» на стене кабинета" loading="lazy" className="aspect-[4/3] w-full object-cover" /></figure>
         <PhotoSlot label="настоящий рог лося" className="aspect-[4/3]" />
       </section>
 

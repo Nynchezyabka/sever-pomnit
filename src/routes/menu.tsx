@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { BookButton, GhostButton, TG_BOOK, meta } from "@/components/site";
 import { groups, rub } from "@/lib/prices";
-import cert from "@/assets/certificate.jpg.asset.json";
+import { GiftBuilder } from "@/components/gift";
 
 export const Route = createFileRoute("/menu")({
   head: () => meta("Меню заботы — цены на ручной массаж · Север помнит", "Оздоровительный массаж, лимфодренаж, массаж лица, сезонные ритуалы с северными травами, абонементы и депозиты."),
@@ -66,14 +66,9 @@ function Menu() {
             <li className="flex justify-between gap-4"><span>от 31 000 ₽</span><span className="text-amber">−20%</span></li>
           </ul>
         </div>
-        <div id="gift" className="grid items-center gap-5 rounded-3xl border bg-card/70 p-7 sm:grid-cols-[0.8fr_1fr]">
-          <img src={cert.url} alt="Подарочный сертификат «Север помнит»" className="rounded-2xl" />
-          <div>
-            <h2 className="text-3xl">Подарочный сертификат</h2>
-            <p className="mt-3 text-muted-foreground">На сумму или на конкретный ритуал. Красиво оформленный, с сургучной печатью.</p>
-            <div className="mt-5"><BookButton>Подарить сертификат</BookButton></div>
-          </div>
-        </div>
+      </section>
+      <section className="mx-auto max-w-6xl px-5 pb-8">
+        <GiftBuilder />
       </section>
     </div>
   );
