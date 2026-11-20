@@ -19,6 +19,7 @@ const nav = [
   { to: "/menu", label: "Меню заботы" },
   { to: "/master", label: "О мастере" },
   { to: "/sad", label: "Зимний сад" },
+  { to: "/kabinet", label: "Кабинет" },
 ] as const;
 
 export function Header() {

@@ -1,0 +1,39 @@
+# Как запустить кабинет и базу клиентов (Supabase + Layero)
+
+## 1. База в Supabase
+1. Зайдите на supabase.com → New project (регион любой, пароль базы сохраните).
+2. Слева **SQL Editor** → **New query**.
+3. Откройте в репозитории файл `supabase/setup.sql`, скопируйте **весь** текст, вставьте и нажмите **Run**. Должно появиться «Success. No rows returned». Запускать повторно можно — ничего не сломается.
+4. **Authentication → Sign In / Providers → Email**: включено. Если не хотите, чтобы клиентам приходило письмо-подтверждение, выключите «Confirm email».
+5. **Authentication → URL Configuration**: в «Site URL» впишите адрес сайта на Layero (например `https://sever-pomnit.layero.app`).
+
+## 2. Ключи для Layero
+В Supabase: **Project Settings → API** (или «Data API» / «API Keys»). Нужны два значения:
+- Project URL → `VITE_SUPABASE_URL`
+- publishable key (или anon public) → `VITE_SUPABASE_PUBLISHABLE_KEY`
+
+Ключ `service_role` / secret **никуда не вставлять**.
+
+## 3. Layero
+1. app.layero.ru → «Создать проект» → «Импортировать из GitHub» → выбрать репозиторий.
+2. Настройки проекта:
+   - Команда сборки: `npm run build`
+   - Переменная окружения `STATIC_BUILD` = `1`
+   - Папка результата: `dist/client`
+   - Тип: статический сайт (SPA)
+3. «Переменные окружения» → добавить `VITE_SUPABASE_URL` и `VITE_SUPABASE_PUBLISHABLE_KEY`.
+4. Пересобрать (Redeploy) — переменные подхватываются только при сборке.
+
+## 4. Открыть Александре картотеку
+1. Александра регистрируется на сайте: «Кабинет» → «Я здесь впервые».
+2. В Supabase → SQL Editor выполнить (подставив её почту):
+```sql
+INSERT INTO public.user_roles (user_id, role)
+SELECT id, 'master' FROM auth.users WHERE email = 'почта-александры@example.com'
+ON CONFLICT DO NOTHING;
+```
+3. Ей нужно выйти и снова войти — в кабинете появится кнопка «Открыть картотеку клиентов» (адрес `/kartoteka`).
+
+## Что видит кто
+- Клиент: свои абонементы и остаток сеансов, свои визиты, анкету «О себе».
+- Александра: всех клиентов, поиск, добавление абонементов, «Списать сеанс сегодня», визиты и закрытые заметки (клиенты их не видят).

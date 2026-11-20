@@ -10,6 +10,8 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as KabinetRouteImport } from './routes/kabinet'
+import { Route as KartotekaRouteImport } from './routes/kartoteka'
 import { Route as MasterRouteImport } from './routes/master'
 import { Route as MenuRouteImport } from './routes/menu'
 import { Route as SadRouteImport } from './routes/sad'
@@ -17,6 +19,16 @@ import { Route as SadRouteImport } from './routes/sad'
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const KabinetRoute = KabinetRouteImport.update({
+  id: '/kabinet',
+  path: '/kabinet',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const KartotekaRoute = KartotekaRouteImport.update({
+  id: '/kartoteka',
+  path: '/kartoteka',
   getParentRoute: () => rootRouteImport,
 } as any)
 const MasterRoute = MasterRouteImport.update({
@@ -37,12 +49,16 @@ const SadRoute = SadRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/kabinet': typeof KabinetRoute
+  '/kartoteka': typeof KartotekaRoute
   '/master': typeof MasterRoute
   '/menu': typeof MenuRoute
   '/sad': typeof SadRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/kabinet': typeof KabinetRoute
+  '/kartoteka': typeof KartotekaRoute
   '/master': typeof MasterRoute
   '/menu': typeof MenuRoute
   '/sad': typeof SadRoute
@@ -50,20 +66,25 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/kabinet': typeof KabinetRoute
+  '/kartoteka': typeof KartotekaRoute
   '/master': typeof MasterRoute
   '/menu': typeof MenuRoute
   '/sad': typeof SadRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/master' | '/menu' | '/sad'
+  fullPaths: '/' | '/kabinet' | '/kartoteka' | '/master' | '/menu' | '/sad'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/master' | '/menu' | '/sad'
-  id: '__root__' | '/' | '/master' | '/menu' | '/sad'
+  to: '/' | '/kabinet' | '/kartoteka' | '/master' | '/menu' | '/sad'
+  id:
+    '__root__' | '/' | '/kabinet' | '/kartoteka' | '/master' | '/menu' | '/sad'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  KabinetRoute: typeof KabinetRoute
+  KartotekaRoute: typeof KartotekaRoute
   MasterRoute: typeof MasterRoute
   MenuRoute: typeof MenuRoute
   SadRoute: typeof SadRoute
@@ -76,6 +97,20 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/kabinet': {
+      id: '/kabinet'
+      path: '/kabinet'
+      fullPath: '/kabinet'
+      preLoaderRoute: typeof KabinetRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/kartoteka': {
+      id: '/kartoteka'
+      path: '/kartoteka'
+      fullPath: '/kartoteka'
+      preLoaderRoute: typeof KartotekaRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/master': {
@@ -104,6 +139,8 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  KabinetRoute: KabinetRoute,
+  KartotekaRoute: KartotekaRoute,
   MasterRoute: MasterRoute,
   MenuRoute: MenuRoute,
   SadRoute: SadRoute,

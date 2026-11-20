@@ -28,3 +28,9 @@ use the editor.
   own key and store it in Secrets.
 - **Secrets.** Lovable manages them. Do not put secret values in the repo.
 <!-- LOVABLE:END -->
+
+<!-- AGENT-MEMORY:BEGIN -->
+- Hosting target is Layero static: `STATIC_BUILD=1 npm run build` → scripts/static-finish.mjs writes dist/client/index.html + _redirects. Why: Layero serves one folder as SPA; no app server.
+- Client accounts use the studio's own Supabase from the browser (src/lib/cabinet.ts, VITE_SUPABASE_* at build time); security lives in RLS + `is_master()`/`use_session` in supabase/setup.sql — keep that file in sync with any schema change. Master role is in user_roles, never on profiles.
+- Cabinet routes (/kabinet, /kartoteka) are `ssr: false` and must degrade to a calm "скоро откроется" card when env vars are missing.
+<!-- AGENT-MEMORY:END -->
