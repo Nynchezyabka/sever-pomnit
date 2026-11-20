@@ -11,9 +11,17 @@ let serverEntryPromise: Promise<ServerEntry> | undefined;
 
 async function getServerEntry(): Promise<ServerEntry> {
   if (!serverEntryPromise) {
-    serverEntryPromise = import("@tanstack/react-start/server-entry").then(
-      (m) => (m.default ?? m) as ServerEntry,
-    );
+    // Some Node/Docker builders wrap the module one level deeper (default.default) — find fetch wherever it is.
+    serverEntryPromise = import("@tanstack/react-start/server-entry").then((m) => {
+      const candidates: unknown[] = [m, (m as { default?: unknown }).default];
+      const inner = (candidates[1] as { default?: unknown } | undefined)?.default;
+      if (inner) candidates.push(inner);
+      const found = candidates.find(
+        (c): c is ServerEntry => !!c && typeof (c as { fetch?: unknown }).fetch === "function",
+      );
+      if (!found) throw new Error("Server entry has no fetch handler");
+      return found;
+    });
   }
   return serverEntryPromise;
 }
