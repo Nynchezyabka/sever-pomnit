@@ -38,30 +38,31 @@
 
 :root {
   --radius: 1.25rem;
-  --background: oklch(0.19 0.022 55);
-  --foreground: oklch(0.92 0.035 80);
-  --card: oklch(0.24 0.028 58);
-  --card-foreground: oklch(0.92 0.035 80);
-  --popover: oklch(0.24 0.028 58);
-  --popover-foreground: oklch(0.92 0.035 80);
-  --primary: oklch(0.76 0.13 68);
-  --primary-foreground: oklch(0.2 0.03 55);
-  --secondary: oklch(0.29 0.035 58);
-  --secondary-foreground: oklch(0.92 0.035 80);
-  --muted: oklch(0.27 0.03 58);
-  --muted-foreground: oklch(0.77 0.04 75);
-  --accent: oklch(0.42 0.07 60);
-  --accent-foreground: oklch(0.95 0.025 80);
+  /* Тёплый мох: глубокий хвойно-зелёный с жёлтым подтоном, без холода */
+  --background: oklch(0.205 0.028 132);
+  --foreground: oklch(0.93 0.03 85);
+  --card: oklch(0.245 0.032 130);
+  --card-foreground: oklch(0.93 0.03 85);
+  --popover: oklch(0.245 0.032 130);
+  --popover-foreground: oklch(0.93 0.03 85);
+  --primary: oklch(0.78 0.135 72);
+  --primary-foreground: oklch(0.22 0.04 110);
+  --secondary: oklch(0.30 0.04 126);
+  --secondary-foreground: oklch(0.93 0.03 85);
+  --muted: oklch(0.28 0.032 126);
+  --muted-foreground: oklch(0.78 0.045 95);
+  --accent: oklch(0.40 0.065 122);
+  --accent-foreground: oklch(0.95 0.025 85);
   --destructive: oklch(0.6 0.18 30);
   --destructive-foreground: oklch(0.98 0 0);
-  --border: oklch(0.85 0.06 70 / 10%);
-  --input: oklch(0.85 0.06 70 / 16%);
-  --ring: oklch(0.76 0.13 68);
-  --amber: oklch(0.82 0.14 70);
-  --moss: oklch(0.52 0.06 120);
-  --paper: oklch(0.93 0.03 80);
-  --paper-foreground: oklch(0.32 0.05 55);
-  --glow: 0 0 28px oklch(0.8 0.15 68 / 50%), 0 0 80px oklch(0.75 0.14 60 / 20%);
+  --border: oklch(0.88 0.05 100 / 12%);
+  --input: oklch(0.88 0.05 100 / 18%);
+  --ring: oklch(0.78 0.135 72);
+  --amber: oklch(0.83 0.14 72);
+  --moss: oklch(0.60 0.075 128);
+  --paper: oklch(0.94 0.035 85);
+  --paper-foreground: oklch(0.30 0.05 110);
+  --glow: 0 0 28px oklch(0.8 0.15 68 / 50%), 0 0 80px oklch(0.72 0.12 95 / 22%);
 }
 
 @layer base {
@@ -71,9 +72,9 @@
     color: var(--color-foreground);
     font-family: var(--font-sans);
     background-image:
-      radial-gradient(ellipse at 20% 0%, oklch(0.42 0.1 62 / 35%), transparent 55%),
-      radial-gradient(ellipse at 90% 40%, oklch(0.36 0.08 50 / 25%), transparent 50%),
-      radial-gradient(ellipse at 10% 90%, oklch(0.3 0.04 110 / 25%), transparent 50%);
+      radial-gradient(ellipse at 20% 0%, oklch(0.42 0.1 62 / 32%), transparent 55%),
+      radial-gradient(ellipse at 90% 40%, oklch(0.34 0.07 118 / 30%), transparent 50%),
+      radial-gradient(ellipse at 10% 90%, oklch(0.3 0.05 132 / 28%), transparent 50%);
     background-attachment: fixed;
   }
   h1, h2, h3 { font-family: var(--font-display); font-weight: 500; letter-spacing: -0.01em; }

@@ -87,7 +87,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { property: "og:title", content: "Север помнит · ручной массаж" },
       { property: "og:description", content: "Пространство ручного массажа и заботы Александры Суворовой." },
       { property: "og:type", content: "website" },
-      { name: "theme-color", content: "#1b241e" },
+      { name: "theme-color", content: "#121a0c" },
       { name: "apple-mobile-web-app-capable", content: "yes" },
       { name: "mobile-web-app-capable", content: "yes" },
       { name: "apple-mobile-web-app-title", content: "Север помнит" },
