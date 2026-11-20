@@ -38,20 +38,20 @@
 
 :root {
   --radius: 1.25rem;
-  /* Тёплый мох: глубокий хвойно-зелёный с жёлтым подтоном, без холода */
-  --background: oklch(0.205 0.028 132);
-  --foreground: oklch(0.93 0.03 85);
-  --card: oklch(0.245 0.032 130);
-  --card-foreground: oklch(0.93 0.03 85);
-  --popover: oklch(0.245 0.032 130);
-  --popover-foreground: oklch(0.93 0.03 85);
+  /* Пыльный хаки: серовато-оливковая основа без бурого и холодного подтона */
+  --background: oklch(0.225 0.018 122);
+  --foreground: oklch(0.93 0.026 88);
+  --card: oklch(0.27 0.023 122);
+  --card-foreground: oklch(0.93 0.026 88);
+  --popover: oklch(0.27 0.023 122);
+  --popover-foreground: oklch(0.93 0.026 88);
   --primary: oklch(0.78 0.135 72);
   --primary-foreground: oklch(0.22 0.04 110);
-  --secondary: oklch(0.30 0.04 126);
-  --secondary-foreground: oklch(0.93 0.03 85);
-  --muted: oklch(0.28 0.032 126);
-  --muted-foreground: oklch(0.78 0.045 95);
-  --accent: oklch(0.40 0.065 122);
+  --secondary: oklch(0.32 0.03 123);
+  --secondary-foreground: oklch(0.93 0.026 88);
+  --muted: oklch(0.29 0.022 123);
+  --muted-foreground: oklch(0.78 0.036 98);
+  --accent: oklch(0.40 0.048 124);
   --accent-foreground: oklch(0.95 0.025 85);
   --destructive: oklch(0.6 0.18 30);
   --destructive-foreground: oklch(0.98 0 0);
@@ -59,7 +59,7 @@
   --input: oklch(0.88 0.05 100 / 18%);
   --ring: oklch(0.78 0.135 72);
   --amber: oklch(0.83 0.14 72);
-  --moss: oklch(0.60 0.075 128);
+  --moss: oklch(0.64 0.058 126);
   --paper: oklch(0.94 0.035 85);
   --paper-foreground: oklch(0.30 0.05 110);
   --glow: 0 0 28px oklch(0.8 0.15 68 / 50%), 0 0 80px oklch(0.72 0.12 95 / 22%);
@@ -72,9 +72,9 @@
     color: var(--color-foreground);
     font-family: var(--font-sans);
     background-image:
-      radial-gradient(ellipse at 20% 0%, oklch(0.42 0.1 62 / 32%), transparent 55%),
-      radial-gradient(ellipse at 90% 40%, oklch(0.34 0.07 118 / 30%), transparent 50%),
-      radial-gradient(ellipse at 10% 90%, oklch(0.3 0.05 132 / 28%), transparent 50%);
+      radial-gradient(ellipse at 20% 0%, oklch(0.42 0.08 70 / 22%), transparent 55%),
+      radial-gradient(ellipse at 90% 40%, oklch(0.36 0.035 125 / 32%), transparent 50%),
+      radial-gradient(ellipse at 10% 90%, oklch(0.31 0.025 122 / 30%), transparent 50%);
     background-attachment: fixed;
   }
   h1, h2, h3 { font-family: var(--font-display); font-weight: 500; letter-spacing: -0.01em; }

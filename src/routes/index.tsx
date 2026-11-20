@@ -4,6 +4,7 @@ import { TeaRitual } from "@/components/ritual";
 import tea from "@/assets/tea-card.jpg.asset.json";
 import ginger from "@/assets/gingerbread.jpg.asset.json";
 import mood from "@/assets/moodboard.jpg.asset.json";
+import { BotanicalDivider, BotanicalSprig } from "@/components/botanical";
 
 export const Route = createFileRoute("/")({
   head: () => meta("Север помнит — пространство ручного массажа и заботы", "Только чуткие живые руки. Ручной массаж, лимфодренаж и сезонные ритуалы с северными травами у Александры, ЖК «Полярная 25»."),
@@ -33,11 +34,14 @@ function Index() {
           </div>
           <p className="mt-5 text-sm text-muted-foreground">Вт–Сб, 8:30–22:00 · ЖК «Полярная 25»</p>
         </div>
-        <div className="relative">
+        <div className="relative isolate">
+          <BotanicalSprig variant="grass" className="absolute -right-16 -top-20 -z-10 h-72 w-40 rotate-12 text-moss/50" />
           <img src={tea.url} alt="Чай с хвоей, шишки, свеча и открытка «Здесь можно не спешить»" className="aspect-[4/5] w-full rounded-[2rem] object-cover shadow-2xl" />
           <div className="absolute -bottom-6 -left-6 hidden h-28 w-20 rotate-[-6deg] p-1 shadow-xl md:block"><Logo className="h-full w-full" /></div>
         </div>
       </section>
+
+      <BotanicalDivider className="mx-auto max-w-4xl px-5" />
 
       <section className="mx-auto max-w-6xl px-5 py-16">
         <div className="max-w-2xl">

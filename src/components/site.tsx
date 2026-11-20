@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import logo from "@/assets/logo.jpg.asset.json";
+import { BotanicalSprig } from "@/components/botanical";
 
 export const TG_BOOK = "https://t.me/Sashsa_S";
 export const TG_CHANNEL = "https://t.me/massage_sever_pomnit";
@@ -45,7 +46,7 @@ export function Header() {
 
 export function Footer() {
   return (
-    <footer className="mt-24 border-t">
+    <footer className="relative z-10 mt-24 border-t">
       <div className="mx-auto grid max-w-6xl gap-6 px-5 py-10 text-sm text-muted-foreground sm:grid-cols-3">
         <div>
           <p className="font-display text-lg text-foreground">Север помнит</p>
@@ -99,8 +100,9 @@ export function meta(title: string, description: string) {
 /** Reserved spot for a photo that will be sent later. */
 export function PhotoSlot({ label, className = "" }: { label: string; className?: string }) {
   return (
-    <div className={`flex items-center justify-center rounded-[2rem] border border-dashed border-primary/40 bg-card/50 p-6 text-center text-sm text-muted-foreground ${className}`}>
-      <span>Здесь будет фото<br /><span className="font-display text-lg italic text-amber">{label}</span></span>
+    <div className={`relative flex items-center justify-center overflow-hidden rounded-[2rem] border border-dashed border-primary/40 bg-card/50 p-6 text-center text-sm text-muted-foreground ${className}`}>
+      <BotanicalSprig variant="grass" className="absolute -bottom-10 -right-4 h-48 w-28 rotate-12 text-moss/30" />
+      <span className="relative">Здесь будет фото<br /><span className="font-display text-lg italic text-amber">{label}</span></span>
     </div>
   );
 }

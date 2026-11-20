@@ -11,6 +11,7 @@ import {
 import { useEffect, type ReactNode } from "react";
 
 import { Header, Footer, FloatingTelegram } from "@/components/site";
+import { BotanicalBackdrop } from "@/components/botanical";
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 
@@ -87,7 +88,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { property: "og:title", content: "Север помнит · ручной массаж" },
       { property: "og:description", content: "Пространство ручного массажа и заботы Александры Суворовой." },
       { property: "og:type", content: "website" },
-      { name: "theme-color", content: "#121a0c" },
+      { name: "theme-color", content: "#272a22" },
       { name: "apple-mobile-web-app-capable", content: "yes" },
       { name: "mobile-web-app-capable", content: "yes" },
       { name: "apple-mobile-web-app-title", content: "Север помнит" },
@@ -132,11 +133,14 @@ function RootComponent() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
-      <Header />
-      <main><Outlet /></main>
-      <Footer />
-      <FloatingTelegram />
+      <div className="relative isolate min-h-screen overflow-x-clip">
+        <BotanicalBackdrop />
+        {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
+        <Header />
+        <main className="relative z-10"><Outlet /></main>
+        <Footer />
+        <FloatingTelegram />
+      </div>
     </QueryClientProvider>
   );
 }
