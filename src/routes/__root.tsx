@@ -10,7 +10,7 @@ import {
 } from "@tanstack/react-router";
 import { useEffect, type ReactNode } from "react";
 
-import { Header, Footer } from "@/components/site";
+import { Header, Footer, FloatingTelegram } from "@/components/site";
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 
@@ -87,6 +87,11 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { property: "og:title", content: "Север помнит · ручной массаж" },
       { property: "og:description", content: "Пространство ручного массажа и заботы Александры Суворовой." },
       { property: "og:type", content: "website" },
+      { name: "theme-color", content: "#1b241e" },
+      { name: "apple-mobile-web-app-capable", content: "yes" },
+      { name: "mobile-web-app-capable", content: "yes" },
+      { name: "apple-mobile-web-app-title", content: "Север помнит" },
+      { name: "apple-mobile-web-app-status-bar-style", content: "black-translucent" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
     links: [
@@ -95,6 +100,8 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         href: appCss,
       },
       { rel: "icon", href: "/favicon.png", type: "image/png" },
+      { rel: "manifest", href: "/manifest.webmanifest" },
+      { rel: "apple-touch-icon", href: "/apple-touch-icon.png" },
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
       { rel: "stylesheet", href: "https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Manrope:wght@400;500;600&display=swap" },
@@ -129,6 +136,7 @@ function RootComponent() {
       <Header />
       <main><Outlet /></main>
       <Footer />
+      <FloatingTelegram />
     </QueryClientProvider>
   );
 }

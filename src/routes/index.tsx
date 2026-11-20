@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { BOOK_TEMPLATE, BookButton, CopyButton, Logo, PhotoSlot, TG_BOOK, meta } from "@/components/site";
+import { TeaRitual } from "@/components/ritual";
 import tea from "@/assets/tea-card.jpg.asset.json";
 import ginger from "@/assets/gingerbread.jpg.asset.json";
 import mood from "@/assets/moodboard.jpg.asset.json";
@@ -84,6 +85,8 @@ function Index() {
         </ol>
         <div className="mt-8 flex flex-wrap gap-3"><CopyButton text={BOOK_TEMPLATE}>Скопировать сообщение</CopyButton><BookButton>Открыть Telegram</BookButton></div>
       </section>
+
+      <TeaRitual />
 
       <section className="mx-auto grid max-w-6xl gap-6 px-5 py-8 md:grid-cols-2">
         <PhotoSlot label="кабинет и тёплый свет" className="aspect-[4/3]" />

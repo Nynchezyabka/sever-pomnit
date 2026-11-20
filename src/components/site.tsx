@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import logo from "@/assets/logo.jpg.asset.json";
 
@@ -114,5 +114,23 @@ export function CopyButton({ text, children }: { text: string; children: React.R
       className="inline-flex min-h-11 items-center justify-center rounded-full border border-primary/50 px-6 py-3 font-medium transition hover:bg-primary/10">
       {done ? "Скопировано ✓" : children}
     </button>
+  );
+}
+
+/** Gentle Telegram button that appears on phones after scrolling a bit. */
+export function FloatingTelegram() {
+  const [show, setShow] = useState(false);
+  useEffect(() => {
+    const on = () => setShow(window.scrollY > 500);
+    on();
+    window.addEventListener("scroll", on, { passive: true });
+    return () => window.removeEventListener("scroll", on);
+  }, []);
+  return (
+    <a href={TG_BOOK} target="_blank" rel="noreferrer" aria-label="Написать Александре в Telegram"
+      className={`fixed bottom-4 right-4 z-30 inline-flex min-h-12 items-center gap-2 rounded-full bg-primary px-5 py-3 text-sm font-medium text-primary-foreground shadow-lg glow transition-all duration-500 motion-reduce:transition-none md:hidden ${show ? "translate-y-0 opacity-100" : "pointer-events-none translate-y-6 opacity-0"}`}
+      style={{ marginBottom: "env(safe-area-inset-bottom)" }}>
+      <span aria-hidden>✉</span> Написать Александре
+    </a>
   );
 }
