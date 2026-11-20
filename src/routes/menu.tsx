@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { BookButton, GhostButton, TG_BOOK, meta } from "@/components/site";
 import { groups, rub } from "@/lib/prices";
 import { GiftBuilder } from "@/components/gift";
+import { BookingForm } from "@/components/booking";
 
 export const Route = createFileRoute("/menu")({
   head: () => meta("Меню заботы — цены на ручной массаж · Север помнит", "Оздоровительный массаж, лимфодренаж, массаж лица, сезонные ритуалы с северными травами, абонементы и депозиты."),
@@ -69,6 +70,7 @@ function Menu() {
       </section>
       <section className="mx-auto max-w-6xl px-5 pb-8">
         <GiftBuilder />
+        <div id="zapis" className="mt-12 max-w-2xl"><BookingForm /></div>
       </section>
     </div>
   );

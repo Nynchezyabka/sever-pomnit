@@ -164,3 +164,36 @@ CREATE TRIGGER profile_notify AFTER INSERT ON public.profiles FOR EACH ROW EXECU
 
 -- Чтобы включить оповещения, выполните отдельно (подставьте свои значения):
 -- UPDATE public.bot_settings SET bot_token = '123456:ABC...', chat_id = '123456789' WHERE id = 1;
+
+-- 9. Заявки на запись с сайта (оставить может любой, читает только мастер)
+CREATE TABLE IF NOT EXISTS public.booking_requests (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  name text NOT NULL CHECK (length(name) BETWEEN 1 AND 100),
+  contact text NOT NULL CHECK (length(contact) BETWEEN 3 AND 100),
+  service text NOT NULL DEFAULT '' CHECK (length(service) <= 200),
+  wish_time text NOT NULL DEFAULT '' CHECK (length(wish_time) <= 200),
+  comment text NOT NULL DEFAULT '' CHECK (length(comment) <= 1000),
+  done boolean NOT NULL DEFAULT false,
+  created_at timestamptz NOT NULL DEFAULT now()
+);
+GRANT INSERT ON public.booking_requests TO anon, authenticated;
+GRANT SELECT, UPDATE, DELETE ON public.booking_requests TO authenticated;
+GRANT ALL ON public.booking_requests TO service_role;
+ALTER TABLE public.booking_requests ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "booking insert" ON public.booking_requests;
+DROP POLICY IF EXISTS "booking master" ON public.booking_requests;
+CREATE POLICY "booking insert" ON public.booking_requests FOR INSERT TO anon, authenticated WITH CHECK (done = false);
+CREATE POLICY "booking master" ON public.booking_requests FOR ALL TO authenticated USING (public.is_master()) WITH CHECK (public.is_master());
+
+CREATE OR REPLACE FUNCTION public.on_new_booking() RETURNS trigger
+LANGUAGE plpgsql SECURITY DEFINER SET search_path = public AS $$
+BEGIN
+  PERFORM public.notify_master('📅 Заявка на запись: ' || NEW.name || ' · ' || NEW.contact
+    || coalesce(E'\nУслуга: ' || nullif(NEW.service,''), '')
+    || coalesce(E'\nКогда удобно: ' || nullif(NEW.wish_time,''), '')
+    || coalesce(E'\n' || nullif(NEW.comment,''), ''));
+  RETURN NEW;
+EXCEPTION WHEN others THEN RETURN NEW;
+END $$;
+DROP TRIGGER IF EXISTS booking_notify ON public.booking_requests;
+CREATE TRIGGER booking_notify AFTER INSERT ON public.booking_requests FOR EACH ROW EXECUTE FUNCTION public.on_new_booking();

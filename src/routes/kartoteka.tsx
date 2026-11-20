@@ -16,7 +16,7 @@ function Kartoteka() {
   if (!ready || (session && master === null)) return <Shell title="Картотека"><p className="text-muted-foreground">Минутку…</p></Shell>;
   if (!db()) return <Shell title="Картотека"><NotConfigured /></Shell>;
   if (!session || !master) return <Shell title="Картотека"><p className="text-muted-foreground">Этот раздел только для мастера.</p><Link to="/kabinet" className={ghost}>Войти</Link></Shell>;
-  return <Shell title="Картотека"><Clients /></Shell>;
+  return <Shell title="Картотека"><Requests /><Clients /></Shell>;
 }
 
 function Clients() {
@@ -120,4 +120,22 @@ function ClientCard({ p, back }: { p: Profile; back: () => void }) {
       <ul className="mt-3 space-y-1 text-sm">{visits.map((v) => <li key={v.id}>{new Date(v.visited_on).toLocaleDateString("ru-RU")} — {v.service}</li>)}</ul>
     </div>
   </>;
+}
+
+type Req = { id: string; name: string; contact: string; service: string; wish_time: string; comment: string; created_at: string };
+function Requests() {
+  const [list, setList] = useState<Req[]>([]);
+  const load = () => db()!.from("booking_requests").select("*").eq("done", false).order("created_at", { ascending: false }).then(({ data }) => setList((data ?? []) as Req[]));
+  useEffect(() => { load(); }, []);
+  if (list.length === 0) return null;
+  return <div className={card}>
+    <h2 className="font-display text-2xl">Новые заявки</h2>
+    <ul className="mt-3 space-y-3">{list.map((r) => (
+      <li key={r.id} className="flex flex-wrap items-start justify-between gap-3 border-b border-border pb-3">
+        <div><p>{r.name} · <span className="text-amber">{r.contact}</span></p>
+          <p className="text-sm text-muted-foreground">{[r.service, r.wish_time, r.comment].filter(Boolean).join(" · ")}</p>
+          <p className="text-xs text-muted-foreground">{new Date(r.created_at).toLocaleString("ru-RU")}</p></div>
+        <button className={ghost} onClick={async () => { await db()!.from("booking_requests").update({ done: true }).eq("id", r.id); load(); }}>Обработано</button>
+      </li>))}</ul>
+  </div>;
 }
