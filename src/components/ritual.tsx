@@ -27,7 +27,7 @@ export function TeaRitual() {
     <section className="mx-auto max-w-6xl px-5 py-10 md:py-16">
       <p className="text-sm uppercase tracking-[0.2em] text-amber">Перед визитом</p>
       <h2 className="mt-2 font-display text-4xl">Какое масло и чай вам приготовить?</h2>
-      <p className="mt-3 max-w-2xl text-muted-foreground">Выберите то, что сейчас больше нравится. Это необязательно, а передумать можно даже во время сеанса.</p>
+      <p className="mt-3 max-w-2xl text-muted-foreground">Выберите то, что сейчас больше нравится. Это необязательно, а передумать можно даже во время сеанса. А к чаю всегда ждёт цукат из сосновой шишки.</p>
       <div className="mt-8 grid gap-10 md:grid-cols-2">
         <Choice title="Масло" items={OILS} value={oil} onPick={setOil} />
         <Choice title="Чай после" items={TEAS} value={tea} onPick={setTea} />

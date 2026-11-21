@@ -3,7 +3,7 @@ import { ritualMessage } from "./ritual";
 
 describe("ritualMessage", () => {
   it("names the chosen oil and tea", () => {
-    expect(ritualMessage("kedr", "ivan")).toBe("Здравствуйте, Александра! К моему сеансу хочется: масло — кедр, после — иван-чай.");
+    expect(ritualMessage("hvoya", "ded")).toBe("Здравствуйте, Александра! К моему сеансу хочется: масло — хвоя и кедр, после — дедушкин чай.");
   });
   it("is empty until both are chosen", () => {
     expect(ritualMessage("kedr", "")).toBe("");

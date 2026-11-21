@@ -46,8 +46,10 @@ function Menu() {
         ))}
         <section className="rounded-3xl border border-primary/40 bg-card/70 p-5 sm:p-7">
           <h2 className="text-3xl">Сезонные ритуалы</h2>
-          <p className="mt-3 text-muted-foreground">Тёплое масло с ароматом северных трав, неторопливый массаж и чай после сеанса. Состав и детали меняются в зависимости от времени года.</p>
-          <p className="mt-3 rounded-xl border border-dashed border-primary/40 p-3 text-sm text-muted-foreground">Скоро расскажу о зимнем ритуале: как он проходит, сколько длится и сколько стоит.</p>
+          <div className="mt-4 font-medium">Зимний согревающий ритуал</div>
+          <div className="mt-1 flex flex-wrap gap-x-5 gap-y-1 text-sm text-muted-foreground"><span>75 мин — <span className="text-foreground">{rub(4300)}</span></span><span>90 мин — <span className="text-foreground">{rub(5000)}</span></span></div>
+          <p className="mt-3 text-muted-foreground">Зимой мы кутаемся в свитера, втягиваем голову в плечи — и шея с плечами каменеют. На ритуале я прогреваю спину, шею и стопы тёплым маслом, снимаю зажимы от холода и мягко разгоняю лимфу, чтобы ушли тяжесть и сонливость.</p>
+          <p className="mt-3 text-sm text-muted-foreground">После — горячий травяной чай и цукат из молодой сосновой шишки из Приладожья. Варю их сама, на фруктозе.</p>
           <div className="mt-5"><GhostButton href={TG_BOOK}>Спросить о ритуале</GhostButton></div>
         </section>
       </div>

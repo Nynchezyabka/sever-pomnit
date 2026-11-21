@@ -1,15 +1,15 @@
 export const OILS = [
-  { id: "hvoya", label: "Хвоя", note: "свежо и ясно" },
-  { id: "imbir", label: "Имбирь", note: "согревает до кончиков пальцев" },
-  { id: "kedr", label: "Кедр", note: "спокойно и надёжно" },
+  { id: "hvoya", label: "Хвоя и кедр", note: "свежо, голова становится ясной" },
+  { id: "apelsin", label: "Апельсин и лаванда", note: "спокойно, как в тёплом коконе" },
+  { id: "imbir", label: "Имбирь и корица", note: "согревает до кончиков пальцев" },
   { id: "none", label: "Без запаха", note: "просто тёплое масло" },
 ] as const;
 
 export const TEAS = [
-  { id: "ivan", label: "Иван-чай", note: "мягкий, медовый" },
-  { id: "brusnika", label: "Брусничный лист", note: "лёгкий, с кислинкой" },
-  { id: "chabrec", label: "Чабрец", note: "согревающий, пряный" },
-  { id: "voda", label: "Просто тёплая вода", note: "тоже забота" },
+  { id: "ded", label: "Дедушкин чай", note: "сосновые почки, еловые побеги, шиповник" },
+  { id: "ivan", label: "Иван-чай со смородиной", note: "мягкий, с летним листом" },
+  { id: "sbiten", label: "Пряный сбитень", note: "греет изнутри" },
+  { id: "voda", label: "Тёплая вода с мятой и лимоном", note: "легко и свежо" },
 ] as const;
 
 export function ritualMessage(oilId: string, teaId: string): string {
