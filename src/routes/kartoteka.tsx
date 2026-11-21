@@ -2,7 +2,9 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { meta } from "@/components/site";
 import { NotConfigured, Shell, btn, card, field, ghost, useIsMaster, useSession } from "@/components/cabinet-ui";
-import { db, matchesClient, sessionsLeft, subscriptionLine, type Note, type Profile, type Subscription, type Visit } from "@/lib/cabinet";
+import { GiftShelf } from "@/components/garden-gifts";
+import { db, matchesClient, sessionsLeft, subscriptionLine, type GiftClaim, type Note, type Profile, type Subscription, type Visit } from "@/lib/cabinet";
+import type { GiftId } from "@/lib/garden";
 
 export const Route = createFileRoute("/kartoteka")({
   ssr: false,
@@ -43,6 +45,9 @@ function ClientCard({ p, back }: { p: Profile; back: () => void }) {
   const [subs, setSubs] = useState<Subscription[]>([]);
   const [visits, setVisits] = useState<Visit[]>([]);
   const [notes, setNotes] = useState<Note[]>([]);
+  const [claims, setClaims] = useState<GiftClaim[]>([]);
+  const [busyGift, setBusyGift] = useState<GiftId | null>(null);
+  const [giftErr, setGiftErr] = useState("");
   const [note, setNote] = useState("");
   const [title, setTitle] = useState("Абонемент: 5 сеансов массажа тела");
   const [total, setTotal] = useState(5);
@@ -51,12 +56,13 @@ function ClientCard({ p, back }: { p: Profile; back: () => void }) {
 
   async function load() {
     const c = db()!;
-    const [s, v, n] = await Promise.all([
+    const [s, v, n, g] = await Promise.all([
       c.from("subscriptions").select("*").eq("client_id", p.id).order("created_at", { ascending: false }),
       c.from("visits").select("*").eq("client_id", p.id).order("visited_on", { ascending: false }),
       c.from("client_notes").select("*").eq("client_id", p.id).order("created_at", { ascending: false }),
+      c.from("gift_claims").select("*").eq("client_id", p.id).order("created_at", { ascending: false }),
     ]);
-    setSubs((s.data ?? []) as Subscription[]); setVisits((v.data ?? []) as Visit[]); setNotes((n.data ?? []) as Note[]);
+    setSubs((s.data ?? []) as Subscription[]); setVisits((v.data ?? []) as Visit[]); setNotes((n.data ?? []) as Note[]); setClaims((g.data ?? []) as GiftClaim[]);
   }
   useEffect(() => { void load(); }, [p.id]);
 
@@ -75,6 +81,12 @@ function ClientCard({ p, back }: { p: Profile; back: () => void }) {
   }
   async function addVisit() {
     await db()!.from("visits").insert({ client_id: p.id, service: "Сеанс" }); void load();
+  }
+  async function claimGift(gift: GiftId) {
+    setBusyGift(gift); setGiftErr("");
+    const { error } = await db()!.from("gift_claims").insert({ client_id: p.id, gift });
+    setGiftErr(error ? "Не получилось отметить подарок. Обновите SQL-схему по инструкции и попробуйте ещё раз." : "");
+    setBusyGift(null); await load();
   }
   const tg = p.telegram.replace("@", "");
 
@@ -118,6 +130,13 @@ function ClientCard({ p, back }: { p: Profile; back: () => void }) {
     <div className={card}>
       <div className="flex items-center justify-between"><h3 className="font-display text-2xl">Визиты</h3><button className={ghost} onClick={addVisit}>+ Визит сегодня</button></div>
       <ul className="mt-3 space-y-1 text-sm">{visits.map((v) => <li key={v.id}>{new Date(v.visited_on).toLocaleDateString("ru-RU")} — {v.service}</li>)}</ul>
+    </div>
+
+    <div className={card}>
+      <h3 className="font-display text-2xl">Подарки из Зимнего сада</h3>
+      <p className="mb-4 mt-1 text-sm text-muted-foreground">Чай на 5-м визите, эфирное масло на 10-м, магниевая соль на 15-м.</p>
+      <GiftShelf visits={visits.length} claimed={claims.map((c) => c.gift)} onClaim={claimGift} busy={busyGift !== null} />
+      {giftErr && <p className="mt-3 text-sm text-amber">{giftErr}</p>}
     </div>
   </>;
 }

@@ -197,3 +197,20 @@ EXCEPTION WHEN others THEN RETURN NEW;
 END $$;
 DROP TRIGGER IF EXISTS booking_notify ON public.booking_requests;
 CREATE TRIGGER booking_notify AFTER INSERT ON public.booking_requests FOR EACH ROW EXECUTE FUNCTION public.on_new_booking();
+
+-- 10. Подарки Зимнего сада: открываются по реальным визитам, выдачу отмечает только мастер
+CREATE TABLE IF NOT EXISTS public.gift_claims (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  client_id uuid NOT NULL REFERENCES public.profiles(id) ON DELETE CASCADE,
+  gift text NOT NULL CHECK (gift IN ('tea', 'oil', 'salt')),
+  claimed_on date NOT NULL DEFAULT current_date,
+  created_at timestamptz NOT NULL DEFAULT now(),
+  UNIQUE (client_id, gift)
+);
+GRANT SELECT, INSERT, DELETE ON public.gift_claims TO authenticated;
+GRANT ALL ON public.gift_claims TO service_role;
+ALTER TABLE public.gift_claims ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "gifts read" ON public.gift_claims;
+DROP POLICY IF EXISTS "gifts master" ON public.gift_claims;
+CREATE POLICY "gifts read" ON public.gift_claims FOR SELECT TO authenticated USING (client_id = auth.uid() OR public.is_master());
+CREATE POLICY "gifts master" ON public.gift_claims FOR ALL TO authenticated USING (public.is_master()) WITH CHECK (public.is_master());

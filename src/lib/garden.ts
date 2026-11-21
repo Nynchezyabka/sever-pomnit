@@ -5,12 +5,12 @@ export const empty: GardenState = { session: 0, water: 0, stretch: 0, diary: 0, 
 export const POINTS: Record<Care, number> = { session: 4, water: 1, stretch: 2, diary: 2 };
 export const MAX_BRANCHES = 18;
 
-export function growth(s: GardenState) {
-  return s.session * POINTS.session + s.water * POINTS.water + s.stretch * POINTS.stretch + s.diary * POINTS.diary;
+export function growth(s: GardenState, realVisits = 0) {
+  return (s.session + Math.max(0, realVisits)) * POINTS.session + s.water * POINTS.water + s.stretch * POINTS.stretch + s.diary * POINTS.diary;
 }
-/** One new branch every 3 points of care. */
-export function branches(s: GardenState) {
-  return Math.min(MAX_BRANCHES, Math.floor(growth(s) / 3));
+/** One new branch every 3 points of care. Real visits from the cabinet count too. */
+export function branches(s: GardenState, realVisits = 0) {
+  return Math.min(MAX_BRANCHES, Math.floor(growth(s, realVisits) / 3));
 }
 export function addCare(s: GardenState, c: Care): GardenState {
   const next = { ...s, [c]: s[c] + 1 };
@@ -19,6 +19,22 @@ export function addCare(s: GardenState, c: Care): GardenState {
 }
 export function planLeft(s: GardenState) {
   return s.plan ? s.plan - s.planUsed : 0;
+}
+
+export type GiftId = "tea" | "salt" | "oil";
+export type GiftStatus = "locked" | "ready" | "given";
+export const GIFTS: { id: GiftId; at: number; title: string; description: string }[] = [
+  { id: "tea", at: 5, title: "Стакан чая", description: "Тёплая чайная пауза после сеанса." },
+  { id: "oil", at: 10, title: "Эфирное масло", description: "Аромат для своего уютного ритуала дома." },
+  { id: "salt", at: 15, title: "Магниевая соль", description: "Пакетик соли для тёплой домашней ванны." },
+];
+
+/** Gifts depend on visits recorded by the master, never on local game actions. */
+export function giftStates(realVisits: number, claimed: GiftId[]) {
+  return GIFTS.map((gift) => ({
+    ...gift,
+    status: (claimed.includes(gift.id) ? "given" : realVisits >= gift.at ? "ready" : "locked") as GiftStatus,
+  }));
 }
 
 export type DiaryEntry = { date: string; energy: number; sleep: number; lightness: number; mood: number; note: string };

@@ -1,4 +1,5 @@
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
+import type { GiftId } from "./garden";
 
 export type Profile = {
   id: string; full_name: string; phone: string; telegram: string;
@@ -10,6 +11,7 @@ export type Subscription = {
 };
 export type Visit = { id: string; client_id: string; visited_on: string; service: string; comment: string };
 export type Note = { id: string; client_id: string; body: string; created_at: string };
+export type GiftClaim = { id: string; client_id: string; gift: GiftId; claimed_on: string; created_at: string };
 
 const url = import.meta.env["VITE_SUPABASE_URL"] as string | undefined;
 const key = (import.meta.env["VITE_SUPABASE_PUBLISHABLE_KEY"] ?? import.meta.env["VITE_SUPABASE_ANON_KEY"]) as string | undefined;
