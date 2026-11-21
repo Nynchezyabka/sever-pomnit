@@ -86,3 +86,12 @@
 @keyframes flicker { 0%,100% { opacity: 1 } 50% { opacity: .7 } }
 @utility flicker { animation: flicker 3s ease-in-out infinite; }
 @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
+
+/* Зимний сад: снег, появление находок */
+.garden-flake { position: absolute; top: -8px; border-radius: 9999px; background: var(--foreground); opacity: 0; animation: garden-snow-fall 9s linear infinite; }
+@keyframes garden-snow-fall { 0% { transform: translate(0, 0); opacity: 0; } 10% { opacity: .6; } 100% { transform: translate(20px, 70vh); opacity: 0; } }
+.garden-find { transition: transform .25s ease, filter .25s ease; transform-origin: bottom center; }
+.garden-find:hover, .garden-find:focus-visible { filter: drop-shadow(0 0 10px var(--amber)); }
+.garden-pop { animation: garden-pop .9s cubic-bezier(.2,1.6,.4,1) both; }
+@keyframes garden-pop { 0% { transform: translate(-50%, -100%) scale(0); filter: drop-shadow(0 0 0 var(--amber)); } 60% { filter: drop-shadow(0 0 18px var(--amber)); } 100% { transform: translate(-50%, -100%) scale(1); } }
+@media (prefers-reduced-motion: reduce) { .garden-flake, .garden-pop { animation: none; } .garden-flake { display: none; } }

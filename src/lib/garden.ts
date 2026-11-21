@@ -1,9 +1,11 @@
 export type Care = "session" | "water" | "stretch" | "diary";
-export type GardenState = { session: number; water: number; stretch: number; diary: number; plan: 0 | 5 | 10; planUsed: number };
+export type GardenState = { session: number; water: number; stretch: number; diary: number; plan: 0 | 5 | 10; planUsed: number; day?: string; dayWater?: number; dayStretch?: number };
 
 export const empty: GardenState = { session: 0, water: 0, stretch: 0, diary: 0, plan: 0, planUsed: 0 };
 export const POINTS: Record<Care, number> = { session: 4, water: 1, stretch: 2, diary: 2 };
-export const MAX_BRANCHES = 18;
+export const MAX_BRANCHES = 14;
+/** Daily caps keep the game a gentle habit instead of a tapping contest. */
+export const DAILY: Record<"water" | "stretch", number> = { water: 3, stretch: 1 };
 
 export function growth(s: GardenState, realVisits = 0) {
   return (s.session + Math.max(0, realVisits)) * POINTS.session + s.water * POINTS.water + s.stretch * POINTS.stretch + s.diary * POINTS.diary;
@@ -12,8 +14,19 @@ export function growth(s: GardenState, realVisits = 0) {
 export function branches(s: GardenState, realVisits = 0) {
   return Math.min(MAX_BRANCHES, Math.floor(growth(s, realVisits) / 3));
 }
-export function addCare(s: GardenState, c: Care): GardenState {
-  const next = { ...s, [c]: s[c] + 1 };
+export function careLeft(s: GardenState, c: "water" | "stretch", today: string) {
+  const used = s.day === today ? (c === "water" ? s.dayWater ?? 0 : s.dayStretch ?? 0) : 0;
+  return Math.max(0, DAILY[c] - used);
+}
+export function addCare(s: GardenState, c: Care, today?: string): GardenState {
+  if (today && (c === "water" || c === "stretch") && careLeft(s, c, today) === 0) return s;
+  const next: GardenState = { ...s, [c]: s[c] + 1 };
+  if (today && (c === "water" || c === "stretch")) {
+    const same = s.day === today;
+    next.day = today;
+    next.dayWater = (same ? s.dayWater ?? 0 : 0) + (c === "water" ? 1 : 0);
+    next.dayStretch = (same ? s.dayStretch ?? 0 : 0) + (c === "stretch" ? 1 : 0);
+  }
   if (c === "session" && s.plan) next.planUsed = Math.min(s.plan, s.planUsed + 1);
   return next;
 }

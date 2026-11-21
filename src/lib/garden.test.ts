@@ -1,5 +1,6 @@
 import { describe, it, expect } from "vitest";
-import { addCare, branches, diarySummary, empty, planLeft, type GardenState } from "./garden";
+import { addCare, branches, careLeft, diarySummary, empty, MAX_BRANCHES, planLeft, type GardenState } from "./garden";
+import { SCENES } from "./garden-scenes";
 
 describe("garden", () => {
   it("a session grows a branch (4 points)", () => {
@@ -25,5 +26,22 @@ describe("garden", () => {
     const t = diarySummary([{ date: "20.11", energy: 2, sleep: 4, lightness: 3, mood: 5, note: "тянет шею" }]);
     expect(t).toContain("Энергия: 2/5");
     expect(t).toContain("тянет шею");
+  });
+});
+
+describe("daily limits", () => {
+  it("water counts at most 3 times a day", () => {
+    let s = empty; for (let i = 0; i < 5; i++) s = addCare(s, "water", "2026-11-21");
+    expect(s.water).toBe(3);
+    expect(careLeft(s, "water", "2026-11-21")).toBe(0);
+  });
+  it("stretch counts once a day and resets the next day", () => {
+    let s = addCare(empty, "stretch", "2026-11-21"); s = addCare(s, "stretch", "2026-11-21");
+    expect(s.stretch).toBe(1);
+    s = addCare(s, "stretch", "2026-11-22");
+    expect(s.stretch).toBe(2);
+  });
+  it("the two scenes hold 14 finds in total", () => {
+    expect(SCENES.reduce((a, sc) => a + sc.items.length, 0)).toBe(MAX_BRANCHES);
   });
 });
