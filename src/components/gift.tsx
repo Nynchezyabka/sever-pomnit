@@ -6,13 +6,13 @@ const chip = (on: boolean) =>
   `min-h-11 rounded-full border px-4 py-2 text-sm transition ${on ? "border-primary bg-primary/15 text-foreground" : "border-border text-muted-foreground hover:text-foreground"}`;
 
 const rules = [
-  "Приходите за 5–10 минут — чтобы спокойно выдохнуть перед сеансом.",
-  "Перенос или отмена — за 24 часа, подстроимся под ваши планы.",
-  "Сертификат не именной: его можно передать другому человеку, предупредив Александру.",
-  "Если заболели — до 2 сеансов курса перенесём. Можно заморозить курс до 2 недель.",
-  "Сеанс начинается в назначенное время и при опоздании не продлевается.",
-  "Лучше не есть плотно за час до массажа.",
-  "Расскажите о давлении, травмах, хронических болезнях или беременности — это важно для безопасности.",
+  "Приходите за 5–10 минут, чтобы спокойно переодеться и настроиться на отдых.",
+  "Если планы изменились, предупредите о переносе или отмене не позднее чем за 24 часа.",
+  "Сертификат можно передать другому человеку — просто предупредите Александру.",
+  "По справке о болезни можно перенести до 2 сеансов курса. Курс также можно заморозить на срок до 2 недель.",
+  "При опоздании сеанс всё равно закончится в назначенное время.",
+  "Лучше не есть плотно в течение часа перед массажем.",
+  "До сеанса расскажите Александре о давлении, травмах, хронических заболеваниях и беременности.",
 ];
 
 export function GiftBuilder() {
@@ -22,8 +22,9 @@ export function GiftBuilder() {
 
   return (
     <div id="gift" className="scroll-mt-24 rounded-3xl border bg-card/70 p-6 md:p-9">
-      <p className="text-sm uppercase tracking-[0.25em] text-amber">Подарить заботу</p>
-      <h2 className="mt-2 text-3xl md:text-4xl">Соберите сертификат</h2>
+      <p className="text-sm uppercase tracking-[0.25em] text-amber">Подарочный сертификат</p>
+      <h2 className="mt-2 text-3xl md:text-4xl">Соберите свой вариант</h2>
+      <p className="mt-3 max-w-xl text-muted-foreground">Выберите сумму или курс массажа, добавьте имя и пожелание. Затем отправьте готовую заявку Александре.</p>
       <div className="mt-8 grid gap-10 lg:grid-cols-[1fr_0.95fr]">
         <div className="space-y-7">
           <fieldset>
@@ -101,7 +102,7 @@ export function GiftBuilder() {
             <div className="mx-auto mt-8 h-px w-24 bg-primary/40" />
             <p className="mt-4 text-xs text-muted-foreground">Александра Суворова · <span className="whitespace-nowrap">ЖК «Полярная 25»</span><br />по предварительной записи · {PHONE}</p>
           </div>
-          <p className="mt-4 text-sm text-muted-foreground">Это предпросмотр. Настоящий сертификат Александра оформит и передаст после оплаты.</p>
+          <p className="mt-4 text-sm text-muted-foreground">Так будет выглядеть ваш выбор. Готовый сертификат Александра оформит и передаст после оплаты.</p>
           <div className="mt-5 flex flex-wrap gap-3">
             <CopyButton text={msg}>Скопировать заявку</CopyButton>
             <BookButton>Открыть Telegram</BookButton>

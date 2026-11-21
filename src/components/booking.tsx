@@ -16,10 +16,11 @@ export function BookingForm() {
     const { error } = await c!.from("booking_requests").insert(f);
     setState(error ? "err" : "ok");
   }
-  if (state === "ok") return <div className={card}><p className="font-display text-xl">Спасибо, заявка у Александры</p><p className="mt-2 text-muted-foreground">Она напишет вам, чтобы подобрать время.</p></div>;
+  if (state === "ok") return <div className={card}><p className="font-display text-xl">Заявка отправлена</p><p className="mt-2 text-muted-foreground">Спасибо! Александра напишет вам, чтобы уточнить детали и согласовать время.</p></div>;
   return (
     <form onSubmit={send} className={`${card} space-y-3`}>
-      <h2 className="font-display text-2xl">Оставить заявку</h2>
+      <h2 className="font-display text-2xl">Оставить заявку на массаж</h2>
+      <p className="text-sm text-muted-foreground">Заполните форму — Александра получит сообщение и свяжется с вами. Это ещё не подтверждение записи.</p>
       <input className={field} placeholder="Как к вам обращаться" maxLength={100} required value={f.name} onChange={set("name")} />
       <input className={field} placeholder="Телефон или ник в Telegram" minLength={3} maxLength={100} required value={f.contact} onChange={set("contact")} />
       <input className={field} placeholder="Какой массаж (если уже выбрали)" maxLength={200} value={f.service} onChange={set("service")} />

@@ -17,7 +17,7 @@ function Cabinet() {
   if (!db()) return <Shell title="Личный кабинет"><NotConfigured /></Shell>;
   if (!session) return (
     <Shell title="Личный кабинет">
-      <p className="text-muted-foreground">Здесь видно, сколько сеансов осталось, и можно один раз рассказать о себе — чтобы на сеансе ничего не объяснять.</p>
+      <p className="text-muted-foreground">Здесь хранятся ваши абонементы, история визитов и пожелания к сеансу. Можно один раз рассказать о себе, чтобы не повторять это перед каждым массажем.</p>
       <AuthForm />
     </Shell>
   );

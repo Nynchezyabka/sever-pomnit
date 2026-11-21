@@ -25,16 +25,16 @@ export function TeaRitual() {
   const msg = ritualMessage(oil, tea);
   return (
     <section className="mx-auto max-w-6xl px-5 py-10 md:py-16">
-      <p className="text-sm uppercase tracking-[0.2em] text-amber">Ритуал перед визитом</p>
-      <h2 className="mt-2 font-display text-4xl">Выберите аромат и чай</h2>
-      <p className="mt-3 max-w-2xl text-muted-foreground">Необязательно — но приятно, когда вас уже ждут. Можно передумать прямо на сеансе.</p>
+      <p className="text-sm uppercase tracking-[0.2em] text-amber">Перед визитом</p>
+      <h2 className="mt-2 font-display text-4xl">Какое масло и чай вам приготовить?</h2>
+      <p className="mt-3 max-w-2xl text-muted-foreground">Выберите то, что сейчас больше нравится. Это необязательно, а передумать можно даже во время сеанса.</p>
       <div className="mt-8 grid gap-10 md:grid-cols-2">
         <Choice title="Масло" items={OILS} value={oil} onPick={setOil} />
         <Choice title="Чай после" items={TEAS} value={tea} onPick={setTea} />
       </div>
       {msg && (
         <div className="mt-8 rounded-[2rem] border border-primary/40 bg-card/70 p-6">
-          <p className="font-display text-xl italic text-amber">Мы заварим это к вашему приходу</p>
+          <p className="font-display text-xl italic text-amber">Приготовим всё к вашему приходу</p>
           <p className="mt-2 text-muted-foreground">{msg}</p>
           <div className="mt-5 flex flex-wrap gap-3">
             <CopyButton text={msg}>Скопировать для Александры</CopyButton>

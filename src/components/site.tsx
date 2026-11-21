@@ -144,7 +144,7 @@ export function PhotoSlot({ label, className = "" }: { label: string; className?
   );
 }
 
-export const BOOK_TEMPLATE = "Здравствуйте, Александра! Хочу записаться на массаж (например, спины). Мне удобно в такие дни/время: … Я у вас впервые.";
+export const BOOK_TEMPLATE = "Здравствуйте, Александра! Хочу записаться на массаж. Меня интересует: … Мне удобно прийти: … Я у вас впервые.";
 
 export function CopyButton({ text, children }: { text: string; children: React.ReactNode }) {
   const [done, setDone] = useState(false);

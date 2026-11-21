@@ -44,7 +44,7 @@ function Garden() {
     <div className="mx-auto max-w-6xl px-5 py-14">
       <p className="text-sm uppercase tracking-[0.25em] text-amber">Для клиентов</p>
       <h1 className="mt-3 text-4xl sm:text-5xl md:text-6xl">Зимний сад заботы</h1>
-      <p className="mt-4 max-w-xl text-muted-foreground">Отмечайте маленькие добрые дела для тела. Никаких серий и штрафов: пропустили неделю — сад просто ждёт вас.</p>
+      <p className="mt-4 max-w-xl text-muted-foreground">Отмечайте то, что сделали для себя: выпили воды, немного размялись или сходили на массаж. Если пропустили день или неделю, ничего страшного — сад подождёт.</p>
 
       <div className="mt-10 grid gap-8 lg:grid-cols-[1.2fr_0.8fr]">
         <div className="rounded-[2rem] border bg-card/60 p-4">
@@ -95,7 +95,7 @@ function Garden() {
                     <span key={i} className={`h-5 w-5 rounded-full border border-primary/60 ${i < s.planUsed ? "bg-amber glow" : ""}`} />
                   ))}
                 </div>
-                <p className="mt-2 text-sm text-muted-foreground">{planLeft(s) ? `Осталось ${planLeft(s)} — отмечается кнопкой «Сеанс массажа»` : "Абонемент пройден целиком. Вы большая молодец!"}</p>
+                <p className="mt-2 text-sm text-muted-foreground">{planLeft(s) ? `Осталось ${planLeft(s)}. После визита нажмите «Сеанс массажа».` : "Все сеансы по абонементу отмечены. Спасибо, что заботились о себе!"}</p>
               </>
             )}
           </div>
@@ -108,7 +108,7 @@ function Garden() {
       </div>
       <section className="mt-16 rounded-[2rem] border bg-card/60 p-5 sm:p-7">
         <h2 className="text-4xl">Дневник самочувствия</h2>
-        <p className="mt-2 max-w-xl text-muted-foreground">Когда захочется — отметьте, как вы сегодня. Без обязательств: пропуски никто не считает. Каждая запись поливает сад.</p>
+        <p className="mt-2 max-w-xl text-muted-foreground">Отметьте своё состояние, когда захотите. Здесь нет обязательных ежедневных записей и штрафов за пропуски. Каждая запись помогает саду расти.</p>
         <div className="mt-8 grid gap-6 md:grid-cols-2">
           {SCALES.map((sc) => (
             <label key={sc.key} className="block">

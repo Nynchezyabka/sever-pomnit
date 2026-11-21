@@ -135,7 +135,7 @@ function Requests() {
         <div><p>{r.name} · <span className="text-amber">{r.contact}</span></p>
           <p className="text-sm text-muted-foreground">{[r.service, r.wish_time, r.comment].filter(Boolean).join(" · ")}</p>
           <p className="text-xs text-muted-foreground">{new Date(r.created_at).toLocaleString("ru-RU")}</p></div>
-        <button className={ghost} onClick={async () => { await db()!.from("booking_requests").update({ done: true }).eq("id", r.id); load(); }}>Обработано</button>
+        <button className={ghost} onClick={async () => { await db()!.from("booking_requests").update({ done: true }).eq("id", r.id); load(); }}>Связались с клиентом</button>
       </li>))}</ul>
   </div>;
 }

@@ -19,14 +19,22 @@ function fix(node: Node) {
 /** Applies Russian typography to all page text after hydration and on updates. */
 export function useTypograf() {
   useEffect(() => {
-    fix(document.body);
-    const obs = new MutationObserver((list) => {
-      for (const m of list) {
-        if (m.type === "characterData") fix(m.target);
-        else m.addedNodes.forEach(fix);
-      }
-    });
-    obs.observe(document.body, { subtree: true, childList: true, characterData: true });
-    return () => obs.disconnect();
+    let obs: MutationObserver | undefined;
+    // Route modules hydrate asynchronously. Wait for the first screen to settle
+    // before touching its text; later changes are handled by the observer.
+    const timer = window.setTimeout(() => {
+      fix(document.body);
+      obs = new MutationObserver((list) => {
+        for (const m of list) {
+          if (m.type === "characterData") fix(m.target);
+          else m.addedNodes.forEach(fix);
+        }
+      });
+      obs.observe(document.body, { subtree: true, childList: true, characterData: true });
+    }, 1000);
+    return () => {
+      window.clearTimeout(timer);
+      obs?.disconnect();
+    };
   }, []);
 }
