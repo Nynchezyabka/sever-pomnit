@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "@tanstack/react-router";
-import logo from "@/assets/logo.jpg.asset.json";
+const logo = { url: "/images/logo.jpg" };
 
 export const TG_BOOK = "https://t.me/Sashsa_S";
 export const TG_CHANNEL = "https://t.me/massage_sever_pomnit";
@@ -23,24 +23,62 @@ const nav = [
 ] as const;
 
 export function Header() {
+  const [open, setOpen] = useState(false);
+  useEffect(() => {
+    document.body.style.overflow = open ? "hidden" : "";
+    return () => { document.body.style.overflow = ""; };
+  }, [open]);
   return (
-    <header className="sticky top-0 z-20 border-b bg-background/85 backdrop-blur">
-      <div className="mx-auto flex max-w-6xl flex-col gap-2 px-4 py-2.5 sm:flex-row sm:items-center sm:justify-between sm:gap-4 sm:px-5 sm:py-3">
-        <Link to="/" className="flex shrink-0 items-center gap-3">
+    <>
+    <header className="sticky top-0 z-30 border-b bg-background/85 backdrop-blur">
+      <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-2.5 sm:px-5 sm:py-3">
+        <Link to="/" className="flex shrink-0 items-center gap-3" onClick={() => setOpen(false)}>
           <Logo className="h-9 w-7 shrink-0 sm:h-11 sm:w-8" />
           <span className="font-display text-xl tracking-wide">Север помнит</span>
         </Link>
-        <nav className="-mx-4 flex gap-1 overflow-x-auto px-4 text-sm [scrollbar-width:none] sm:mx-0 sm:flex-wrap sm:px-0">
+        <nav className="hidden flex-wrap gap-1 text-sm md:flex">
           {nav.map((n) => (
             <Link key={n.to} to={n.to} activeOptions={{ exact: true }}
-              className="shrink-0 whitespace-nowrap rounded-full px-3 py-1.5 text-muted-foreground transition-colors hover:text-foreground"
-              activeProps={{ className: "shrink-0 whitespace-nowrap rounded-full px-3 py-1.5 bg-secondary text-foreground" }}>
+              className="whitespace-nowrap rounded-full px-3 py-1.5 text-muted-foreground transition-colors hover:text-foreground"
+              activeProps={{ className: "whitespace-nowrap rounded-full px-3 py-1.5 bg-secondary text-foreground" }}>
               {n.label}
             </Link>
           ))}
         </nav>
+        <button type="button" aria-label={open ? "Закрыть меню" : "Открыть меню"} aria-expanded={open}
+          onClick={() => setOpen((o) => !o)}
+          className="flex h-11 w-11 items-center justify-center rounded-full border bg-card text-foreground md:hidden">
+          <span className="relative block h-3.5 w-5">
+            <span className={`absolute left-0 h-0.5 w-5 rounded bg-current transition ${open ? "top-1.5 rotate-45" : "top-0"}`} />
+            <span className={`absolute left-0 top-1.5 h-0.5 w-5 rounded bg-current transition ${open ? "opacity-0" : ""}`} />
+            <span className={`absolute left-0 h-0.5 w-5 rounded bg-current transition ${open ? "top-1.5 -rotate-45" : "top-3"}`} />
+          </span>
+        </button>
       </div>
     </header>
+      {open && (
+        <div className="fixed inset-x-0 bottom-0 top-[61px] z-40 overflow-y-auto bg-background px-5 pb-10 pt-4 md:hidden">
+          <nav className="flex flex-col">
+            {nav.map((n) => (
+              <Link key={n.to} to={n.to} activeOptions={{ exact: true }} onClick={() => setOpen(false)}
+                className="border-b py-4 font-display text-2xl text-foreground"
+                activeProps={{ className: "border-b py-4 font-display text-2xl text-primary" }}>
+                {n.label}
+              </Link>
+            ))}
+          </nav>
+          <div className="mt-8 space-y-2 rounded-2xl border bg-card p-5 text-sm text-muted-foreground">
+            <a href={TG_BOOK} target="_blank" rel="noreferrer"
+              className="mb-3 flex items-center justify-center rounded-full bg-primary px-6 py-3 font-medium text-primary-foreground">
+              Записаться в Telegram
+            </a>
+            <a href="tel:+79166363660" className="block text-foreground">{PHONE}</a>
+            <p className="whitespace-nowrap">ЖК «Полярная 25»</p>
+            <p>Вт–Сб, 8:30–22:00</p>
+          </div>
+        </div>
+      )}
+    </>
   );
 }
 

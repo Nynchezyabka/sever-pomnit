@@ -1,10 +1,10 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { BOOK_TEMPLATE, BookButton, CopyButton, Logo, PhotoSlot, TG_BOOK, meta } from "@/components/site";
 import { TeaRitual } from "@/components/ritual";
-import tea from "@/assets/tea-card.jpg.asset.json";
-import ginger from "@/assets/gingerbread.jpg.asset.json";
-import sign from "@/assets/amber_sign.jpg.asset.json";
-import mood from "@/assets/moodboard.jpg.asset.json";
+const tea = { url: "/images/tea-card.jpg" };
+const ginger = { url: "/images/gingerbread.jpg" };
+const sign = { url: "/images/amber_sign.jpg" };
+const mood = { url: "/images/moodboard.jpg" };
 
 export const Route = createFileRoute("/")({
   head: () => meta("Север помнит — пространство ручного массажа и заботы", "Только чуткие живые руки. Ручной массаж, лимфодренаж и сезонные ритуалы с северными травами у Александры, ЖК «Полярная 25»."),
