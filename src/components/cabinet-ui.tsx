@@ -43,7 +43,7 @@ export function NotConfigured() {
   return (
     <div className={card}>
       <p className="font-display text-xl">Кабинет пока недоступен</p>
-      <p className="mt-2 text-muted-foreground">Мы уже разбираемся. Записаться на массаж или узнать остаток абонемента можно у Александры в Telegram.</p>
+      <p className="mt-2 text-muted-foreground">Мы уже разбираемся. Записаться на массаж или узнать остаток абонемента можно у меня в Telegram.</p>
     </div>
   );
 }

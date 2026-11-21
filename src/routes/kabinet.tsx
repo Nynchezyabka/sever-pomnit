@@ -51,7 +51,7 @@ function Mine({ userId }: { userId: string }) {
   return <>
     <div className={card}>
       <h2 className="font-display text-2xl">Мои абонементы</h2>
-      {subs.length === 0 ? <p className="mt-2 text-muted-foreground">Пока пусто. Когда вы купите абонемент или сертификат, Александра добавит его сюда.</p> :
+      {subs.length === 0 ? <p className="mt-2 text-muted-foreground">Пока пусто. Когда вы купите абонемент или сертификат, я добавлю его сюда.</p> :
         <ul className="mt-3 space-y-2">{subs.map((s) => (
           <li key={s.id} className="flex flex-wrap justify-between gap-2"><span>{s.title}</span>
             <span className="text-amber">{subscriptionLine(s)}{s.expires_on ? ` · до ${new Date(s.expires_on).toLocaleDateString("ru-RU")}` : ""}</span></li>))}</ul>}
@@ -59,7 +59,7 @@ function Mine({ userId }: { userId: string }) {
 
     {p && <form onSubmit={save} className={`${card} space-y-3`}>
       <h2 className="font-display text-2xl">О себе</h2>
-      <p className="text-sm text-muted-foreground">Всё необязательно. Александра увидит это перед сеансом.</p>
+      <p className="text-sm text-muted-foreground">Всё необязательно. Я прочитаю это перед сеансом.</p>
       <input className={field} placeholder="Имя" value={p.full_name} onChange={(e) => set("full_name", e.target.value)} />
       <input className={field} placeholder="Телефон" value={p.phone} onChange={(e) => set("phone", e.target.value)} />
       <input className={field} placeholder="Ник в Telegram" value={p.telegram} onChange={(e) => set("telegram", e.target.value)} />
