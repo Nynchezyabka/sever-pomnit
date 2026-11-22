@@ -1,6 +1,7 @@
 import { useEffect, useState, type ReactNode } from "react";
 import type { Session } from "@supabase/supabase-js";
 import { db } from "@/lib/cabinet";
+import { Link } from "@tanstack/react-router";
 
 export const field = "w-full rounded-2xl border border-foreground/35 bg-card/60 px-4 py-3 text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50";
 export const lbl = "block space-y-1.5 text-sm text-muted-foreground [&>span]:block";
@@ -90,6 +91,7 @@ export function AuthForm() {
       )}
       <label className={lbl}><span>Почта</span><input className={field} type="email" autoComplete="email" value={email} onChange={(e) => setEmail(e.target.value)} required /></label>
       <label className={lbl}><span>Пароль (от 6 символов)</span><input className={field} type="password" minLength={6} value={password} onChange={(e) => setPassword(e.target.value)} required /></label>
+      {mode === "up" && <Consent />}
       <button className={btn} disabled={busy}>{mode === "up" ? "Создать кабинет" : "Войти"}</button>
       {msg && <p role="alert" className="text-sm text-amber">{msg}</p>}
     </form>
@@ -101,4 +103,14 @@ function friendly(m: string) {
   if (/already registered/i.test(m)) return "Такая почта уже есть — просто войдите.";
   if (/not confirmed/i.test(m)) return "Сначала откройте ссылку из письма.";
   return m;
+}
+
+/** Required consent checkbox for forms that collect personal data. */
+export function Consent() {
+  return (
+    <label className="flex items-start gap-3 text-sm text-muted-foreground">
+      <input type="checkbox" required className="mt-1 h-4 w-4 shrink-0 accent-primary" />
+      <span>Соглашаюсь на <Link to="/privacy" target="_blank" className="underline hover:text-foreground">обработку персональных данных</Link> для связи и записи.</span>
+    </label>
+  );
 }

@@ -14,6 +14,7 @@ import { Route as KabinetRouteImport } from './routes/kabinet'
 import { Route as KartotekaRouteImport } from './routes/kartoteka'
 import { Route as MasterRouteImport } from './routes/master'
 import { Route as MenuRouteImport } from './routes/menu'
+import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as SadRouteImport } from './routes/sad'
 
 const IndexRoute = IndexRouteImport.update({
@@ -41,6 +42,11 @@ const MenuRoute = MenuRouteImport.update({
   path: '/menu',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PrivacyRoute = PrivacyRouteImport.update({
+  id: '/privacy',
+  path: '/privacy',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SadRoute = SadRouteImport.update({
   id: '/sad',
   path: '/sad',
@@ -53,6 +59,7 @@ export interface FileRoutesByFullPath {
   '/kartoteka': typeof KartotekaRoute
   '/master': typeof MasterRoute
   '/menu': typeof MenuRoute
+  '/privacy': typeof PrivacyRoute
   '/sad': typeof SadRoute
 }
 export interface FileRoutesByTo {
@@ -61,6 +68,7 @@ export interface FileRoutesByTo {
   '/kartoteka': typeof KartotekaRoute
   '/master': typeof MasterRoute
   '/menu': typeof MenuRoute
+  '/privacy': typeof PrivacyRoute
   '/sad': typeof SadRoute
 }
 export interface FileRoutesById {
@@ -70,15 +78,25 @@ export interface FileRoutesById {
   '/kartoteka': typeof KartotekaRoute
   '/master': typeof MasterRoute
   '/menu': typeof MenuRoute
+  '/privacy': typeof PrivacyRoute
   '/sad': typeof SadRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/kabinet' | '/kartoteka' | '/master' | '/menu' | '/sad'
+  fullPaths:
+    '/' | '/kabinet' | '/kartoteka' | '/master' | '/menu' | '/privacy' | '/sad'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/kabinet' | '/kartoteka' | '/master' | '/menu' | '/sad'
+  to:
+    '/' | '/kabinet' | '/kartoteka' | '/master' | '/menu' | '/privacy' | '/sad'
   id:
-    '__root__' | '/' | '/kabinet' | '/kartoteka' | '/master' | '/menu' | '/sad'
+    | '__root__'
+    | '/'
+    | '/kabinet'
+    | '/kartoteka'
+    | '/master'
+    | '/menu'
+    | '/privacy'
+    | '/sad'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -87,6 +105,7 @@ export interface RootRouteChildren {
   KartotekaRoute: typeof KartotekaRoute
   MasterRoute: typeof MasterRoute
   MenuRoute: typeof MenuRoute
+  PrivacyRoute: typeof PrivacyRoute
   SadRoute: typeof SadRoute
 }
 
@@ -127,6 +146,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof MenuRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/privacy': {
+      id: '/privacy'
+      path: '/privacy'
+      fullPath: '/privacy'
+      preLoaderRoute: typeof PrivacyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/sad': {
       id: '/sad'
       path: '/sad'
@@ -143,6 +169,7 @@ const rootRouteChildren: RootRouteChildren = {
   KartotekaRoute: KartotekaRoute,
   MasterRoute: MasterRoute,
   MenuRoute: MenuRoute,
+  PrivacyRoute: PrivacyRoute,
   SadRoute: SadRoute,
 }
 export const routeTree = rootRouteImport

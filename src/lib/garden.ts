@@ -4,8 +4,10 @@ export type GardenState = { session: number; water: number; stretch: number; dia
 export const empty: GardenState = { session: 0, water: 0, stretch: 0, diary: 0, plan: 0, planUsed: 0 };
 export const POINTS: Record<Care, number> = { session: 4, water: 1, stretch: 2, diary: 2 };
 export const MAX_BRANCHES = 14;
+/** One glass is 250 ml; 8 glasses make the daily 2 litres. */
+export const GLASS_ML = 250;
 /** Daily caps keep the game a gentle habit instead of a tapping contest. */
-export const DAILY: Record<"water" | "stretch", number> = { water: 3, stretch: 1 };
+export const DAILY: Record<"water" | "stretch", number> = { water: 8, stretch: 1 };
 
 export function growth(s: GardenState, realVisits = 0) {
   return (s.session + Math.max(0, realVisits)) * POINTS.session + s.water * POINTS.water + s.stretch * POINTS.stretch + s.diary * POINTS.diary;
@@ -17,6 +19,12 @@ export function branches(s: GardenState, realVisits = 0) {
 export function careLeft(s: GardenState, c: "water" | "stretch", today: string) {
   const used = s.day === today ? (c === "water" ? s.dayWater ?? 0 : s.dayStretch ?? 0) : 0;
   return Math.max(0, DAILY[c] - used);
+}
+export function waterToday(s: GardenState, today: string) {
+  return s.day === today ? s.dayWater ?? 0 : 0;
+}
+export function litres(glasses: number) {
+  return (glasses * GLASS_ML / 1000).toLocaleString("ru-RU", { maximumFractionDigits: 2 });
 }
 export function addCare(s: GardenState, c: Care, today?: string): GardenState {
   if (today && (c === "water" || c === "stretch") && careLeft(s, c, today) === 0) return s;

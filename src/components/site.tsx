@@ -98,6 +98,7 @@ export function Footer() {
           <a href={TG_BOOK} className="hover:text-foreground">Записаться: @Sashsa_S</a>
           <a href={TG_CHANNEL} className="hover:text-foreground">Канал в Telegram</a>
           <a href="tel:+79166363660" className="hover:text-foreground">{PHONE}</a>
+          <a href="/privacy" className="hover:text-foreground">Обработка персональных данных</a>
         </div>
       </div>
     </footer>

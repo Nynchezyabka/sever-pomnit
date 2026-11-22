@@ -1,11 +1,11 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { BookOpen, Droplets, Gift, Lightbulb, RotateCcw, Sprout, ChevronLeft, ChevronRight } from "lucide-react";
+import { BookOpen, Droplet, Droplets, Gift, Lightbulb, RotateCcw, Sprout, ChevronLeft, ChevronRight } from "lucide-react";
 import { useEffect, useState } from "react";
 import { GiftShelf } from "@/components/garden-gifts";
 import { GardenScene } from "@/components/garden-scene";
 import { useSession } from "@/components/cabinet-ui";
 import { CopyButton, TG_BOOK, TG_CHANNEL, meta } from "@/components/site";
-import { SCALES, addCare, branches, careLeft, diarySummary, empty, type DiaryEntry, type GardenState, type GiftId } from "@/lib/garden";
+import { SCALES, addCare, branches, careLeft, diarySummary, empty, litres, waterToday, DAILY, type DiaryEntry, type GardenState, type GiftId } from "@/lib/garden";
 import { db } from "@/lib/cabinet";
 
 export const Route = createFileRoute("/sad")({
@@ -132,10 +132,26 @@ function Garden() {
 
             <div>
               <p className="text-sm text-muted-foreground">Что вы уже сделали для себя сегодня?</p>
-              <div className="mt-3 grid grid-cols-2 gap-3">
-                <button type="button" onClick={() => care("water")} className="flex min-h-28 flex-col items-center justify-center gap-2 rounded-3xl border border-primary/25 bg-secondary/45 p-3 text-center transition hover:bg-secondary active:scale-[0.98]">
-                  <Droplets className="h-7 w-7 text-amber" aria-hidden /><span className="font-medium">Стакан воды</span><span className="text-xs text-muted-foreground">{careLeft(s, "water", today) > 0 ? "ещё можно сегодня" : "на сегодня хватит"}</span>
-                </button>
+              <div className="mt-3 rounded-3xl border border-primary/25 bg-secondary/45 p-4">
+                <div className="flex items-baseline justify-between gap-2">
+                  <span className="flex items-center gap-2 font-medium"><Droplets className="h-5 w-5 text-amber" aria-hidden /> Вода</span>
+                  <span className="text-sm text-muted-foreground" aria-live="polite">{waterToday(s, today)} из {DAILY.water} · {litres(waterToday(s, today))} л</span>
+                </div>
+                <div className="mt-3 grid grid-cols-8 gap-1">
+                  {Array.from({ length: DAILY.water }, (_, i) => {
+                    const full = i < waterToday(s, today);
+                    return (
+                      <button key={i} type="button" onClick={() => care("water")} disabled={full || i !== waterToday(s, today)}
+                        aria-label={full ? `Стакан ${i + 1} выпит` : `Отметить стакан ${i + 1}`}
+                        className="flex min-h-11 items-center justify-center rounded-xl transition enabled:hover:bg-secondary active:scale-90 disabled:cursor-default">
+                        <Droplet className={`h-7 w-7 transition ${full ? "fill-amber text-amber" : i === waterToday(s, today) ? "text-amber" : "text-muted-foreground/50"}`} aria-hidden />
+                      </button>
+                    );
+                  })}
+                </div>
+                <p className="mt-2 text-sm text-muted-foreground">{careLeft(s, "water", today) > 0 ? "Нажмите на следующую каплю — один стакан, 250 мл." : "Два литра есть. Отлично для лимфотока!"}</p>
+              </div>
+              <div className="mt-3 grid grid-cols-1 gap-3">
                 <button type="button" onClick={() => care("stretch")} className="flex min-h-28 flex-col items-center justify-center gap-2 rounded-3xl border border-primary/25 bg-secondary/45 p-3 text-center transition hover:bg-secondary active:scale-[0.98]">
                   <Sprout className="h-7 w-7 text-amber" aria-hidden /><span className="font-medium">Мягкая разминка</span><span className="text-xs text-muted-foreground">{careLeft(s, "stretch", today) ? "1 раз в день" : "завтра снова"}</span>
                 </button>

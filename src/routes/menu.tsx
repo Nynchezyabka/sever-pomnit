@@ -18,17 +18,20 @@ function Menu() {
 
       <div className="mt-8 grid gap-3 sm:grid-cols-3">
         {[
-          ["Я у вас впервые", "Для знакомства подойдут «Спина Standard» или общий массаж на 50 минут."],
-          ["Устали шея и спина", "Посмотрите «Шейно-воротниковую зону» или «Архитектуру спины»."],
-          ["Хочется отдохнуть и согреться", "Выберите сезонный ритуал с тёплым маслом и травяным чаем."],
-        ].map(([t, d]) => (
-          <div key={t} className="rounded-2xl border border-primary/30 bg-card/70 p-5"><p className="font-display text-xl text-amber">{t}</p><p className="mt-1 text-sm text-muted-foreground">{d}</p></div>
+          ["Я у вас впервые", "Для знакомства подойдут «Спина Standard» или общий массаж на 50 минут.", "group-0"],
+          ["Устали шея и спина", "Посмотрите «Шейно-воротниковую зону» или «Архитектуру спины».", "group-0"],
+          ["Хочется отдохнуть и согреться", "Выберите сезонный ритуал с тёплым маслом и травяным чаем.", "ritual"],
+        ].map(([t, d, to]) => (
+          <a key={t} href={`#${to}`} className="group rounded-2xl border border-primary/30 bg-card/70 p-5 transition hover:border-primary/70 hover:bg-card">
+            <p className="font-display text-xl text-amber">{t}</p><p className="mt-1 text-sm text-muted-foreground">{d}</p>
+            <p className="mt-3 text-sm text-foreground underline-offset-4 group-hover:underline">Показать ↓</p>
+          </a>
         ))}
       </div>
 
       <div className="mt-12 grid gap-6 lg:grid-cols-2">
-        {groups.map((g) => (
-          <section key={g.title} className="rounded-3xl border bg-card/70 p-5 sm:p-7">
+        {groups.map((g, gi) => (
+          <section key={g.title} id={`group-${gi}`} className="scroll-mt-24 target:ring-2 target:ring-primary/60 rounded-3xl border bg-card/70 p-5 sm:p-7">
             <h2 className="text-3xl">{g.title}</h2>
             <p className="mb-5 text-sm text-muted-foreground">{g.intro}</p>
             <ul className="divide-y divide-border">
@@ -44,7 +47,7 @@ function Menu() {
             </ul>
           </section>
         ))}
-        <section className="rounded-3xl border border-primary/40 bg-card/70 p-5 sm:p-7">
+        <section id="ritual" className="scroll-mt-24 target:ring-2 target:ring-primary/60 rounded-3xl border border-primary/40 bg-card/70 p-5 sm:p-7">
           <h2 className="text-3xl">Сезонные ритуалы</h2>
           <div className="mt-4 font-medium">Зимний согревающий ритуал</div>
           <div className="mt-1 flex flex-wrap gap-x-5 gap-y-1 text-sm text-muted-foreground"><span>75 мин — <span className="text-foreground">{rub(4300)}</span></span><span>90 мин — <span className="text-foreground">{rub(5000)}</span></span></div>

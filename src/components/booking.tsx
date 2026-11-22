@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { db } from "@/lib/cabinet";
-import { btn, card, field, lbl } from "@/components/cabinet-ui";
+import { Consent, btn, card, field, lbl } from "@/components/cabinet-ui";
 import { BookButton } from "@/components/site";
 
 /** Booking request form; without a database it falls back to the Telegram button. */
@@ -22,10 +22,11 @@ export function BookingForm() {
       <h2 className="font-display text-2xl">Оставить заявку на массаж</h2>
       <p className="text-sm text-muted-foreground">Заполните форму — я получу сообщение и свяжусь с вами. Это ещё не подтверждение записи.</p>
       <label className={lbl}><span>Как к вам обращаться</span><input className={field} autoComplete="name" maxLength={100} required value={f.name} onChange={set("name")} /></label>
-      <label className={lbl}><span>Телефон или ник в Telegram</span><input className={field} minLength={3} maxLength={100} required value={f.contact} onChange={set("contact")} /></label>
+      <label className={lbl}><span>Телефон или ник в Telegram</span><input className={field} type="tel" autoComplete="tel" minLength={3} maxLength={100} required value={f.contact} onChange={set("contact")} /></label>
       <label className={lbl}><span>Какой массаж (если уже выбрали)</span><input className={field} maxLength={200} value={f.service} onChange={set("service")} /></label>
       <label className={lbl}><span>Когда удобно: дни, время</span><input className={field} maxLength={200} value={f.wish_time} onChange={set("wish_time")} /></label>
       <label className={lbl}><span>Что-то ещё</span><textarea className={field} rows={3} maxLength={1000} value={f.comment} onChange={set("comment")} /></label>
+      <Consent />
       <button className={btn} disabled={state === "busy"}>Отправить</button>
       {state === "err" && <p role="alert" className="text-sm text-amber">Не получилось отправить. Напишите мне, пожалуйста, в Telegram.</p>}
     </form>

@@ -30,9 +30,9 @@ describe("garden", () => {
 });
 
 describe("daily limits", () => {
-  it("water counts at most 3 times a day", () => {
-    let s = empty; for (let i = 0; i < 5; i++) s = addCare(s, "water", "2026-11-21");
-    expect(s.water).toBe(3);
+  it("water counts at most 8 glasses (2 litres) a day", () => {
+    let s = empty; for (let i = 0; i < 10; i++) s = addCare(s, "water", "2026-11-21");
+    expect(s.water).toBe(8);
     expect(careLeft(s, "water", "2026-11-21")).toBe(0);
   });
   it("stretch counts once a day and resets the next day", () => {
