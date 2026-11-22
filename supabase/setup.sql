@@ -214,3 +214,63 @@ DROP POLICY IF EXISTS "gifts read" ON public.gift_claims;
 DROP POLICY IF EXISTS "gifts master" ON public.gift_claims;
 CREATE POLICY "gifts read" ON public.gift_claims FOR SELECT TO authenticated USING (client_id = auth.uid() OR public.is_master());
 CREATE POLICY "gifts master" ON public.gift_claims FOR ALL TO authenticated USING (public.is_master()) WITH CHECK (public.is_master());
+
+-- 11. Клиенты, которых мастер вносит вручную (ещё без регистрации на сайте).
+--     Когда такой клиент позже зарегистрируется с тем же телефоном, его карточка
+--     с абонементами, визитами и подарками сама привяжется к новому входу.
+ALTER TABLE public.profiles DROP CONSTRAINT IF EXISTS profiles_id_fkey;
+ALTER TABLE public.profiles ALTER COLUMN id SET DEFAULT gen_random_uuid();
+ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS offline boolean NOT NULL DEFAULT false;
+
+-- связанные таблицы следуют за карточкой при привязке
+ALTER TABLE public.subscriptions DROP CONSTRAINT IF EXISTS subscriptions_client_id_fkey;
+ALTER TABLE public.subscriptions ADD CONSTRAINT subscriptions_client_id_fkey FOREIGN KEY (client_id) REFERENCES public.profiles(id) ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE public.visits DROP CONSTRAINT IF EXISTS visits_client_id_fkey;
+ALTER TABLE public.visits ADD CONSTRAINT visits_client_id_fkey FOREIGN KEY (client_id) REFERENCES public.profiles(id) ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE public.client_notes DROP CONSTRAINT IF EXISTS client_notes_client_id_fkey;
+ALTER TABLE public.client_notes ADD CONSTRAINT client_notes_client_id_fkey FOREIGN KEY (client_id) REFERENCES public.profiles(id) ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE public.gift_claims DROP CONSTRAINT IF EXISTS gift_claims_client_id_fkey;
+ALTER TABLE public.gift_claims ADD CONSTRAINT gift_claims_client_id_fkey FOREIGN KEY (client_id) REFERENCES public.profiles(id) ON DELETE CASCADE ON UPDATE CASCADE;
+
+GRANT DELETE ON public.profiles TO authenticated;
+DROP POLICY IF EXISTS "profile master insert" ON public.profiles;
+DROP POLICY IF EXISTS "profile master delete" ON public.profiles;
+CREATE POLICY "profile master insert" ON public.profiles FOR INSERT TO authenticated WITH CHECK (public.is_master() AND offline);
+CREATE POLICY "profile master delete" ON public.profiles FOR DELETE TO authenticated USING (public.is_master() AND offline);
+
+CREATE OR REPLACE FUNCTION public.phone_key(_p text) RETURNS text LANGUAGE sql IMMUTABLE AS $$
+  SELECT right(regexp_replace(coalesce(_p,''), '\D', '', 'g'), 10)
+$$;
+
+CREATE OR REPLACE FUNCTION public.handle_new_user() RETURNS trigger
+LANGUAGE plpgsql SECURITY DEFINER SET search_path = public AS $$
+DECLARE _phone text := coalesce(NEW.raw_user_meta_data->>'phone','');
+        _match uuid;
+BEGIN
+  IF length(public.phone_key(_phone)) = 10 THEN
+    SELECT id INTO _match FROM public.profiles
+     WHERE offline AND public.phone_key(phone) = public.phone_key(_phone)
+     ORDER BY created_at LIMIT 1;
+  END IF;
+  IF _match IS NOT NULL THEN
+    UPDATE public.profiles SET id = NEW.id, offline = false,
+      full_name = coalesce(nullif(full_name,''), NEW.raw_user_meta_data->>'full_name', '')
+     WHERE id = _match;
+  ELSE
+    INSERT INTO public.profiles (id, full_name, phone)
+    VALUES (NEW.id, coalesce(NEW.raw_user_meta_data->>'full_name',''), _phone)
+    ON CONFLICT (id) DO NOTHING;
+  END IF;
+  RETURN NEW;
+END $$;
+
+-- не беспокоить мастера оповещением о клиенте, которого она внесла сама
+CREATE OR REPLACE FUNCTION public.on_new_profile() RETURNS trigger
+LANGUAGE plpgsql SECURITY DEFINER SET search_path = public AS $$
+BEGIN
+  IF NEW.offline THEN RETURN NEW; END IF;
+  PERFORM public.notify_master('🌿 Новый клиент в кабинете: ' || coalesce(nullif(NEW.full_name,''),'без имени')
+    || coalesce(' · ' || nullif(NEW.phone,''), ''));
+  RETURN NEW;
+EXCEPTION WHEN others THEN RETURN NEW;
+END $$;

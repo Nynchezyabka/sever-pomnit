@@ -2,7 +2,8 @@ import { useEffect, useState, type ReactNode } from "react";
 import type { Session } from "@supabase/supabase-js";
 import { db } from "@/lib/cabinet";
 
-export const field = "w-full rounded-2xl border border-border bg-card/60 px-4 py-3 text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50";
+export const field = "w-full rounded-2xl border border-foreground/35 bg-card/60 px-4 py-3 text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50";
+export const lbl = "block space-y-1.5 text-sm text-muted-foreground [&>span]:block";
 export const btn = "inline-flex items-center justify-center rounded-full bg-primary px-6 py-3 font-medium text-primary-foreground transition hover:brightness-110 disabled:opacity-50";
 export const ghost = "inline-flex items-center justify-center rounded-full border border-primary/50 px-5 py-2.5 text-sm text-foreground transition hover:bg-primary/10";
 export const card = "rounded-[2rem] border bg-card/60 p-6";
@@ -43,7 +44,7 @@ export function NotConfigured() {
   return (
     <div className={card}>
       <p className="font-display text-xl">Кабинет пока недоступен</p>
-      <p className="mt-2 text-muted-foreground">Мы уже разбираемся. Записаться на массаж или узнать остаток абонемента можно у меня в Telegram.</p>
+      <p className="mt-2 text-muted-foreground">Кабинет скоро откроется. Пока запись и остаток абонемента — у меня в Telegram.</p>
     </div>
   );
 }
@@ -83,14 +84,14 @@ export function AuthForm() {
       </div>
       {mode === "up" && (
         <>
-          <input className={field} placeholder="Как к вам обращаться" value={name} onChange={(e) => setName(e.target.value)} required />
-          <input className={field} placeholder="Телефон" type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} />
+          <label className={lbl}><span>Как к вам обращаться</span><input className={field} value={name} onChange={(e) => setName(e.target.value)} required /></label>
+          <label className={lbl}><span>Телефон</span><input className={field} type="tel" autoComplete="tel" value={phone} onChange={(e) => setPhone(e.target.value)} /></label>
         </>
       )}
-      <input className={field} placeholder="Почта" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
-      <input className={field} placeholder="Пароль (от 6 символов)" type="password" minLength={6} value={password} onChange={(e) => setPassword(e.target.value)} required />
+      <label className={lbl}><span>Почта</span><input className={field} type="email" autoComplete="email" value={email} onChange={(e) => setEmail(e.target.value)} required /></label>
+      <label className={lbl}><span>Пароль (от 6 символов)</span><input className={field} type="password" minLength={6} value={password} onChange={(e) => setPassword(e.target.value)} required /></label>
       <button className={btn} disabled={busy}>{mode === "up" ? "Создать кабинет" : "Войти"}</button>
-      {msg && <p className="text-sm text-amber">{msg}</p>}
+      {msg && <p role="alert" className="text-sm text-amber">{msg}</p>}
     </form>
   );
 }

@@ -3,7 +3,7 @@ import type { GiftId } from "./garden";
 
 export type Profile = {
   id: string; full_name: string; phone: string; telegram: string;
-  oil: string; tea: string; pressure: string; silence: boolean; wishes: string; created_at: string;
+  oil: string; tea: string; pressure: string; silence: boolean; wishes: string; created_at: string; offline?: boolean;
 };
 export type Subscription = {
   id: string; client_id: string; title: string; total_sessions: number;

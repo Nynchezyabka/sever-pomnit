@@ -53,7 +53,7 @@ export function giftStates(realVisits: number, claimed: GiftId[]) {
 export type DiaryEntry = { date: string; energy: number; sleep: number; lightness: number; mood: number; note: string };
 export const SCALES = [
   { key: "energy", label: "Энергия", low: "на нуле", high: "бодрость" },
-  { key: "sleep", label: "Сон", low: "беспокойный", high: "выспалась" },
+  { key: "sleep", label: "Сон", low: "беспокойный", high: "хороший сон" },
   { key: "lightness", label: "Лёгкость в теле", low: "отёки, тяжесть", high: "легко" },
   { key: "mood", label: "Настроение", low: "тревожно", high: "спокойно" },
 ] as const;

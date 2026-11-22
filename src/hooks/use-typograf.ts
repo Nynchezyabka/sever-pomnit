@@ -22,8 +22,9 @@ export function useTypograf() {
     let obs: MutationObserver | undefined;
     // Route modules hydrate asynchronously. Wait for the first screen to settle
     // before touching its text; later changes are handled by the observer.
+    // Static text is already fixed at build time (scripts/typograf-plugin.mjs);
+    // here we only touch text that appears later (user data, dynamic messages).
     const timer = window.setTimeout(() => {
-      fix(document.body);
       obs = new MutationObserver((list) => {
         for (const m of list) {
           if (m.type === "characterData") fix(m.target);
@@ -31,7 +32,7 @@ export function useTypograf() {
         }
       });
       obs.observe(document.body, { subtree: true, childList: true, characterData: true });
-    }, 1000);
+    }, 0);
     return () => {
       window.clearTimeout(timer);
       obs?.disconnect();

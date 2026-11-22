@@ -7,8 +7,10 @@
 // the build fails. Never add compression (compressPublicAssets, vite-plugin-compression):
 // hosting already compresses at the edge.
 import { defineConfig } from "@lovable.dev/vite-tanstack-config";
+import { typografPlugin } from "./scripts/typograf-plugin.mjs";
 
 export default defineConfig({
+  plugins: [typografPlugin()],
   tanstackStart: {
     server: { entry: "server" },
     // STATIC_BUILD=1 npm run build → plain static site for Layero; data goes browser → database directly.

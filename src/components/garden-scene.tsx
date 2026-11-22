@@ -1,4 +1,4 @@
-import { ChevronLeft, ChevronRight, Lock, X } from "lucide-react";
+import { ChevronLeft, ChevronRight, Lock, Snowflake, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { SCENES, gardenImg, type SceneItem } from "@/lib/garden-scenes";
 
@@ -10,6 +10,9 @@ export function GardenScene({ found, fresh }: { found: number; fresh: number }) 
   const tearoomOpen = found >= glade.items.length;
   const [idx, setIdx] = useState(0);
   const [open, setOpen] = useState<SceneItem | null>(null);
+  const [snow, setSnow] = useState(true);
+  useEffect(() => { if (localStorage.getItem("garden-snow") === "off") setSnow(false); }, []);
+  const toggleSnow = () => { setSnow(!snow); localStorage.setItem("garden-snow", snow ? "off" : "on"); };
   useEffect(() => { if (tearoomOpen && fresh === glade.items.length + 1) setIdx(1); }, [tearoomOpen, fresh, glade.items.length]);
 
   const scene = SCENES[idx] ?? glade;
@@ -21,9 +24,10 @@ export function GardenScene({ found, fresh }: { found: number; fresh: number }) 
     <div>
       <div className="relative aspect-[3/2] w-full overflow-hidden rounded-3xl border border-primary/25 bg-secondary/40">
         <img src={scene.bg} alt={scene.title} className="absolute inset-0 h-full w-full object-cover" loading={idx ? "lazy" : "eager"} />
-        <div className="pointer-events-none absolute inset-0" aria-hidden>
+        {snow && <div className="pointer-events-none absolute inset-0" aria-hidden>
           {FLAKES.map((f, i) => <span key={i} className="garden-flake" style={{ left: `${f.x}%`, width: f.s, height: f.s, animationDelay: `${f.d}s` }} />)}
-        </div>
+        </div>}
+        <button type="button" onClick={toggleSnow} aria-pressed={!snow} className="absolute bottom-2 left-2 inline-flex min-h-10 items-center gap-1.5 rounded-full bg-background/80 px-3 text-sm backdrop-blur"><Snowflake className="h-4 w-4" aria-hidden />{snow ? "Тише" : "Снег"}</button>
         {scene.items.map((it, i) => i < shown && (
           <button key={it.id} type="button" onClick={() => setOpen(it)} aria-label={`${it.name}: совет`}
             className={`garden-find absolute -translate-x-1/2 -translate-y-full ${i + offset + 1 === fresh ? "garden-pop" : ""}`}
@@ -49,7 +53,7 @@ export function GardenScene({ found, fresh }: { found: number; fresh: number }) 
         )}
       </div>
       <p className="mt-2 text-center text-sm text-muted-foreground">
-        {next ? <>Следующая находка: <span className="text-foreground">{next.name}</span>{idx === 0 && !tearoomOpen ? ` · до чайной ${glade.items.length - shown}` : ""}</> : idx === 0 ? "Поляна расцвела! Загляните в Тайную чайную →" : "Чайная собрана целиком. Вы большая молодец."}
+        {next ? <>Следующая находка: <span className="text-foreground">{next.name}</span>{idx === 0 && !tearoomOpen ? " · чайная откроется, когда поляна расцветёт" : ""}</> : idx === 0 ? "Поляна расцвела! Загляните в Тайную чайную →" : "Чайная собрана целиком. Тёплого вам вечера."}
         {shown > 0 && <span className="block text-xs">Нажмите на находку — там совет.</span>}
       </p>
     </div>

@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { meta } from "@/components/site";
-import { AuthForm, NotConfigured, Shell, btn, card, field, ghost, useIsMaster, useSession } from "@/components/cabinet-ui";
+import { AuthForm, NotConfigured, Shell, btn, card, field, lbl, ghost, useIsMaster, useSession } from "@/components/cabinet-ui";
 import { db, subscriptionLine, type Profile, type Subscription, type Visit } from "@/lib/cabinet";
 
 export const Route = createFileRoute("/kabinet")({
@@ -60,14 +60,14 @@ function Mine({ userId }: { userId: string }) {
     {p && <form onSubmit={save} className={`${card} space-y-3`}>
       <h2 className="font-display text-2xl">О себе</h2>
       <p className="text-sm text-muted-foreground">Всё необязательно. Я прочитаю это перед сеансом.</p>
-      <input className={field} placeholder="Имя" value={p.full_name} onChange={(e) => set("full_name", e.target.value)} />
-      <input className={field} placeholder="Телефон" value={p.phone} onChange={(e) => set("phone", e.target.value)} />
-      <input className={field} placeholder="Ник в Telegram" value={p.telegram} onChange={(e) => set("telegram", e.target.value)} />
-      <input className={field} placeholder="Любимое масло или аромат" value={p.oil} onChange={(e) => set("oil", e.target.value)} />
-      <input className={field} placeholder="Чай после сеанса" value={p.tea} onChange={(e) => set("tea", e.target.value)} />
-      <input className={field} placeholder="Нажим: мягче / средний / сильнее" value={p.pressure} onChange={(e) => set("pressure", e.target.value)} />
+      <label className={lbl}><span>Имя</span><input className={field} value={p.full_name} onChange={(e) => set("full_name", e.target.value)} /></label>
+      <label className={lbl}><span>Телефон</span><input className={field} type="tel" autoComplete="tel" value={p.phone} onChange={(e) => set("phone", e.target.value)} /></label>
+      <label className={lbl}><span>Ник в Telegram</span><input className={field} value={p.telegram} onChange={(e) => set("telegram", e.target.value)} /></label>
+      <label className={lbl}><span>Любимое масло или аромат</span><input className={field} value={p.oil} onChange={(e) => set("oil", e.target.value)} /></label>
+      <label className={lbl}><span>Чай после сеанса</span><input className={field} value={p.tea} onChange={(e) => set("tea", e.target.value)} /></label>
+      <label className={lbl}><span>Нажим: мягче / средний / сильнее</span><input className={field} value={p.pressure} onChange={(e) => set("pressure", e.target.value)} /></label>
       <label className="flex items-center gap-3"><input type="checkbox" checked={p.silence} onChange={(e) => set("silence", e.target.checked)} /> Хочу сеанс в тишине</label>
-      <textarea className={field} rows={3} placeholder="Что ещё важно знать: чувствительные места, самочувствие" value={p.wishes} onChange={(e) => set("wishes", e.target.value)} />
+      <label className={lbl}><span>Что ещё важно знать: чувствительные места, самочувствие</span><textarea className={field} rows={3} value={p.wishes} onChange={(e) => set("wishes", e.target.value)} /></label>
       <button className={btn}>Сохранить</button>
       {saved && <span className="ml-3 text-sm text-amber">Сохранено</span>}
     </form>}

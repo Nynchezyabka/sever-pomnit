@@ -3,7 +3,7 @@ import { COURSE_SESSIONS, DEPOSIT_PRESETS, WISHES, giftMessage, giftTitle, type 
 import { BookButton, CopyButton, PHONE } from "@/components/site";
 
 const chip = (on: boolean) =>
-  `min-h-11 rounded-full border px-4 py-2 text-sm transition ${on ? "border-primary bg-primary/15 text-foreground" : "border-border text-muted-foreground hover:text-foreground"}`;
+  `min-h-11 rounded-full border px-4 py-2 text-sm transition ${on ? "border-primary bg-primary/15 text-foreground" : "border-foreground/35 text-muted-foreground hover:text-foreground"}`;
 
 const rules = [
   "Приходите за 5–10 минут, чтобы спокойно переодеться и настроиться на отдых.",

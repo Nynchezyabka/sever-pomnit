@@ -9,7 +9,7 @@ function Choice({ title, items, value, onPick }: { title: string; items: readonl
       <div className="mt-4 grid gap-3 sm:grid-cols-2">
         {items.map((i) => (
           <button key={i.id} type="button" aria-pressed={value === i.id} onClick={() => onPick(i.id)}
-            className={`min-h-11 rounded-2xl border px-4 py-3 text-left transition ${value === i.id ? "border-primary bg-primary/15" : "border-border bg-card/60 hover:border-primary/50"}`}>
+            className={`min-h-11 rounded-2xl border px-4 py-3 text-left transition ${value === i.id ? "border-primary bg-primary/15" : "border-foreground/35 bg-card/60 hover:border-primary/50"}`}>
             <span className="block font-medium">{i.label}</span>
             <span className="block text-sm text-muted-foreground">{i.note}</span>
           </button>

@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { meta } from "@/components/site";
-import { NotConfigured, Shell, btn, card, field, ghost, useIsMaster, useSession } from "@/components/cabinet-ui";
+import { NotConfigured, Shell, btn, card, field, ghost, lbl, useIsMaster, useSession } from "@/components/cabinet-ui";
 import { GiftShelf } from "@/components/garden-gifts";
 import { db, matchesClient, sessionsLeft, subscriptionLine, type GiftClaim, type Note, type Profile, type Subscription, type Visit } from "@/lib/cabinet";
 import type { GiftId } from "@/lib/garden";
@@ -25,19 +25,67 @@ function Clients() {
   const [list, setList] = useState<Profile[]>([]);
   const [q, setQ] = useState("");
   const [open, setOpen] = useState<Profile | null>(null);
-  useEffect(() => {
-    db()!.from("profiles").select("*").order("created_at", { ascending: false }).then(({ data }) => setList((data ?? []) as Profile[]));
-  }, []);
-  if (open) return <ClientCard p={open} back={() => setOpen(null)} />;
+  const [adding, setAdding] = useState(false);
+  const load = () => db()!.from("profiles").select("*").order("created_at", { ascending: false }).then(({ data }) => setList((data ?? []) as Profile[]));
+  useEffect(() => { void load(); }, []);
+  if (open) return <ClientCard p={open} back={() => { setOpen(null); void load(); }} />;
+  if (adding) return <NewClient back={() => setAdding(false)} created={(p) => { setAdding(false); void load(); setOpen(p); }} />;
   const shown = list.filter((p) => matchesClient(p, q));
   return <>
-    <input className={field} placeholder="Поиск: имя, телефон или Telegram" value={q} onChange={(e) => setQ(e.target.value)} />
+    <div className="flex flex-wrap items-end gap-3">
+      <label className={`${lbl} flex-1`}><span>Поиск</span><input className={field} placeholder="Имя, телефон или Telegram" value={q} onChange={(e) => setQ(e.target.value)} /></label>
+      <button className={btn} onClick={() => setAdding(true)}>+ Добавить клиента</button>
+    </div>
     <p className="text-sm text-muted-foreground">Клиентов: {list.length}</p>
     <ul className="space-y-2">{shown.map((p) => (
       <li key={p.id}><button onClick={() => setOpen(p)} className={`${card} w-full text-left hover:border-primary/60`}>
-        <span className="font-display text-lg">{p.full_name || "Без имени"}</span>
+        <span className="font-display text-lg">{p.full_name || "Без имени"}</span>{p.offline && <span className="ml-2 text-sm text-muted-foreground">· внесён вручную</span>}
         <span className="block text-sm text-muted-foreground">{[p.phone, p.telegram].filter(Boolean).join(" · ") || "контакты не указаны"}</span>
       </button></li>))}</ul>
+  </>;
+}
+
+function NewClient({ back, created }: { back: () => void; created: (p: Profile) => void }) {
+  const [f, setF] = useState({ full_name: "", phone: "", telegram: "", note: "", title: "Абонемент: 5 сеансов массажа тела", total: 5, left: 5, until: "" });
+  const [withSub, setWithSub] = useState(false);
+  const [err, setErr] = useState("");
+  const [busy, setBusy] = useState(false);
+  const set = (k: keyof typeof f) => (e: React.ChangeEvent<HTMLInputElement>) => setF({ ...f, [k]: e.target.type === "number" ? Number(e.target.value) : e.target.value });
+  async function save(e: React.FormEvent) {
+    e.preventDefault(); setBusy(true); setErr("");
+    const c = db()!;
+    const { data, error } = await c.from("profiles").insert({ full_name: f.full_name.trim(), phone: f.phone.trim(), telegram: f.telegram.trim().replace(/^@/, ""), offline: true }).select().single();
+    if (error || !data) { setBusy(false); setErr("Не получилось сохранить. Обновите SQL-схему по инструкции (раздел 11) и попробуйте ещё раз."); return; }
+    const p = data as Profile;
+    if (f.note.trim()) await c.from("client_notes").insert({ client_id: p.id, body: f.note.trim() });
+    if (withSub && f.total > 0) {
+      const used = Math.min(f.total, Math.max(0, f.total - f.left));
+      const r = await c.from("subscriptions").insert({ client_id: p.id, title: f.title, total_sessions: f.total, used_sessions: used, expires_on: f.until || null });
+      if (r.error) setErr("Клиент сохранён, но абонемент не добавился — добавьте его в карточке.");
+    }
+    setBusy(false); created(p);
+  }
+  return <>
+    <button className={ghost} onClick={back}>← Все клиенты</button>
+    <form onSubmit={save} className={`${card} space-y-3`}>
+      <h2 className="font-display text-2xl">Новый клиент</h2>
+      <p className="text-sm text-muted-foreground">Для тех, кто ходит давно и ещё не регистрировался на сайте. Если человек потом зарегистрируется с этим же телефоном, карточка привяжется к его кабинету сама.</p>
+      <label className={lbl}><span>Имя</span><input className={field} required maxLength={100} value={f.full_name} onChange={set("full_name")} /></label>
+      <div className="grid gap-3 sm:grid-cols-2">
+        <label className={lbl}><span>Телефон</span><input className={field} type="tel" value={f.phone} onChange={set("phone")} /></label>
+        <label className={lbl}><span>Ник в Telegram</span><input className={field} value={f.telegram} onChange={set("telegram")} /></label>
+      </div>
+      <label className={lbl}><span>Заметка для себя (клиент не видит)</span><input className={field} value={f.note} onChange={set("note")} /></label>
+      <label className="flex items-center gap-3"><input type="checkbox" checked={withSub} onChange={(e) => setWithSub(e.target.checked)} /> Есть действующий абонемент</label>
+      {withSub && <div className="grid gap-3 sm:grid-cols-2">
+        <label className={`${lbl} sm:col-span-2`}><span>Название</span><input className={field} value={f.title} onChange={set("title")} /></label>
+        <label className={lbl}><span>Всего сеансов</span><input className={field} type="number" min={1} value={f.total} onChange={set("total")} /></label>
+        <label className={lbl}><span>Осталось сеансов</span><input className={field} type="number" min={0} max={f.total} value={f.left} onChange={set("left")} /></label>
+        <label className={lbl}><span>Действует до</span><input className={field} type="date" value={f.until} onChange={set("until")} /></label>
+      </div>}
+      <button className={btn} disabled={busy}>Сохранить клиента</button>
+      {err && <p role="alert" className="text-sm text-amber">{err}</p>}
+    </form>
   </>;
 }
 

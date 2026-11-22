@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { BookOpen, Droplets, Gift, Lightbulb, RotateCcw, Sprout } from "lucide-react";
+import { BookOpen, Droplets, Gift, Lightbulb, RotateCcw, Sprout, ChevronLeft, ChevronRight } from "lucide-react";
 import { useEffect, useState } from "react";
 import { GiftShelf } from "@/components/garden-gifts";
 import { GardenScene } from "@/components/garden-scene";
@@ -134,7 +134,7 @@ function Garden() {
               <p className="text-sm text-muted-foreground">Что вы уже сделали для себя сегодня?</p>
               <div className="mt-3 grid grid-cols-2 gap-3">
                 <button type="button" onClick={() => care("water")} className="flex min-h-28 flex-col items-center justify-center gap-2 rounded-3xl border border-primary/25 bg-secondary/45 p-3 text-center transition hover:bg-secondary active:scale-[0.98]">
-                  <Droplets className="h-7 w-7 text-amber" aria-hidden /><span className="font-medium">Стакан воды</span><span className="text-xs text-muted-foreground">осталось сегодня: {careLeft(s, "water", today)}</span>
+                  <Droplets className="h-7 w-7 text-amber" aria-hidden /><span className="font-medium">Стакан воды</span><span className="text-xs text-muted-foreground">{careLeft(s, "water", today) > 0 ? "ещё можно сегодня" : "на сегодня хватит"}</span>
                 </button>
                 <button type="button" onClick={() => care("stretch")} className="flex min-h-28 flex-col items-center justify-center gap-2 rounded-3xl border border-primary/25 bg-secondary/45 p-3 text-center transition hover:bg-secondary active:scale-[0.98]">
                   <Sprout className="h-7 w-7 text-amber" aria-hidden /><span className="font-medium">Мягкая разминка</span><span className="text-xs text-muted-foreground">{careLeft(s, "stretch", today) ? "1 раз в день" : "завтра снова"}</span>
@@ -161,11 +161,12 @@ function Garden() {
               <p className="mt-4 text-xs text-muted-foreground">Из моих заметок в Telegram. Это идеи для заботы, а не медицинские назначения.</p>
             </article>
             <div className="mt-5 flex flex-wrap items-center justify-between gap-3">
-              <div className="flex gap-2" aria-label={`Совет ${tip + 1} из ${tips.length}`}>
-                {tips.map((_, i) => <button key={i} type="button" aria-label={`Совет ${i + 1}`} onClick={() => setTip(i)} className={`h-2.5 rounded-full transition-all ${i === tip ? "w-7 bg-amber" : "w-2.5 bg-muted hover:bg-muted-foreground"}`} />)}
+              <div className="flex items-center gap-2">
+                <button type="button" onClick={() => setTip((tip - 1 + tips.length) % tips.length)} aria-label="Предыдущий совет" className="grid h-11 w-11 place-items-center rounded-full border border-foreground/35 hover:bg-secondary"><ChevronLeft className="h-5 w-5" /></button>
+                <span className="min-w-12 text-center text-sm text-muted-foreground" aria-live="polite">{tip + 1} из {tips.length}</span>
+                <button type="button" onClick={() => setTip((tip + 1) % tips.length)} aria-label="Следующий совет" className="grid h-11 w-11 place-items-center rounded-full bg-primary text-primary-foreground"><ChevronRight className="h-5 w-5" /></button>
               </div>
               <div className="flex flex-wrap gap-2">
-                <button type="button" onClick={() => setTip((tip + 1) % tips.length)} className="min-h-11 rounded-full bg-primary px-5 py-2 text-sm font-medium text-primary-foreground">Ещё совет</button>
                 <a href={TG_CHANNEL} target="_blank" rel="noreferrer" className="inline-flex min-h-11 items-center px-3 text-sm text-muted-foreground underline">Мой канал</a>
               </div>
             </div>

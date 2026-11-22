@@ -38,6 +38,7 @@ export function GiftShelf({ visits, claimed, onClaim, busy = false }: {
           </article>
         );
       })}
+      <p className="text-sm text-muted-foreground sm:col-span-full">Визиты не сгорают и не обнуляются — можно приходить в своём ритме.</p>
     </div>
   );
 }
