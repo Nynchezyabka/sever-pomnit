@@ -34,3 +34,5 @@ use the editor.
 - Client accounts use the studio's own Supabase from the browser (src/lib/cabinet.ts, VITE_SUPABASE_* at build time); security lives in RLS + `is_master()`/`use_session` in supabase/setup.sql — keep that file in sync with any schema change. Master role is in user_roles, never on profiles.
 - Cabinet routes (/kabinet, /kartoteka) are `ssr: false` and must degrade to a calm "скоро откроется" card when env vars are missing.
 <!-- AGENT-MEMORY:END -->
+- Russian non-breaking spaces are applied at build time by scripts/typograf-plugin.mjs (Cyrillic-only, so code is untouched); use-typograf only handles text that appears later. Why: avoids text jumping after load.
+- Master can create offline profiles (profiles.offline, no auth user); handle_new_user links them to a new signup by phone_key. Why: import existing clients without forcing registration.
