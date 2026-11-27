@@ -102,15 +102,20 @@ function corsHeaders(reqOrigin, allowedOriginsCsv) {
 }
 
 export async function defaultSendTelegram({ botToken, chatId, text }) {
-  if (!botToken || !chatId) return;
+  const token = String(botToken || "").trim();
+  const chat = String(chatId || "").trim();
+  if (!token || !chat) return;
   try {
-    const res = await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
+    const res = await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ chat_id: chatId, text }),
-      signal: AbortSignal.timeout(4000),
+      body: JSON.stringify({ chat_id: chat, text }),
+      signal: AbortSignal.timeout(7000),
     });
-    if (!res.ok) console.error("Telegram notify failed:", res.status);
+    if (!res.ok) {
+      const body = await res.text().catch(() => "");
+      console.error("Telegram notify failed:", res.status, body);
+    }
   } catch (err) {
     console.error("Telegram notify error:", err?.message || err);
   }
