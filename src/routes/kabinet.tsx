@@ -6,7 +6,7 @@ import { db, subscriptionLine, type Profile, type Subscription, type Visit } fro
 
 export const Route = createFileRoute("/kabinet")({
   ssr: false,
-  head: () => meta("Личный кабинет · Север помнит", "Ваши абонементы, визиты и пожелания к сеансу у Александры."),
+  head: () => meta("Личный кабинет · Север помнит", "Ваши абонементы, визиты и пожелания к сеансу у Александры.", { noindex: true }),
   component: Cabinet,
 });
 

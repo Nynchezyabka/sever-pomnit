@@ -2,7 +2,12 @@ import { createFileRoute } from "@tanstack/react-router";
 import { PHONE, meta } from "@/components/site";
 
 export const Route = createFileRoute("/privacy")({
-  head: () => meta("Обработка персональных данных · Север помнит", "Какие данные собирает сайт «Север помнит», зачем они нужны и как их удалить."),
+  head: () =>
+    meta(
+      "Обработка персональных данных · Север помнит",
+      "Какие данные собирает сайт «Север помнит», зачем они нужны и как их удалить.",
+      { path: "/privacy" },
+    ),
   component: Privacy,
 });
 

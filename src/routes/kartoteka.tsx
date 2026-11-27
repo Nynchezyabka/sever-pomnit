@@ -8,7 +8,7 @@ import type { GiftId } from "@/lib/garden";
 
 export const Route = createFileRoute("/kartoteka")({
   ssr: false,
-  head: () => ({ ...meta("Картотека · Север помнит", "Рабочий кабинет мастера."), meta: [...meta("Картотека · Север помнит", "Рабочий кабинет мастера.").meta, { name: "robots", content: "noindex" }] }),
+  head: () => meta("Картотека · Север помнит", "Рабочий кабинет мастера.", { noindex: true }),
   component: Kartoteka,
 });
 

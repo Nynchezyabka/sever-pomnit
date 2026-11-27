@@ -2,7 +2,12 @@ import { createFileRoute } from "@tanstack/react-router";
 import { BookButton, GhostButton, PHONE, PhotoSlot, TG_CHANNEL, meta } from "@/components/site";
 
 export const Route = createFileRoute("/master")({
-  head: () => meta("Александра Суворова — мастер ручного массажа · Север помнит", "О мастере, первый визит, противопоказания и правила записи. Приём по вторникам–субботам с 8:30 до 22:00 в ЖК «Полярная 25»."),
+  head: () =>
+    meta(
+      "Александра Суворова — мастер ручного массажа · Север помнит",
+      "О мастере, первый визит, противопоказания и правила записи. Приём по вторникам–субботам с 8:30 до 22:00 в Москве, ЖК «Полярная 25».",
+      { path: "/master", image: "/images/amber_sign.jpg" },
+    ),
   component: Master,
 });
 

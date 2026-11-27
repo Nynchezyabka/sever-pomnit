@@ -1,13 +1,45 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { BOOK_TEMPLATE, BookButton, CopyButton, Logo, PhotoSlot, meta } from "@/components/site";
+import { BOOK_TEMPLATE, BookButton, CopyButton, Logo, PHONE, PhotoSlot, TG_BOOK, TG_CHANNEL, absUrl, meta } from "@/components/site";
 import { TeaRitual } from "@/components/ritual";
 const tea = { url: "/images/tea-card.jpg" };
 const ginger = { url: "/images/gingerbread.jpg" };
 const sign = { url: "/images/amber_sign.jpg" };
 const mood = { url: "/images/moodboard.jpg" };
 
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@type": "HealthAndBeautyBusiness",
+  name: "Север помнит — пространство ручного массажа и заботы",
+  description: "Ручной массаж тела и лица, лимфодренаж и сезонные ритуалы с северными травами у Александры Суворовой в Москве.",
+  telephone: PHONE,
+  ...(absUrl("/") ? { url: absUrl("/") } : {}),
+  ...(absUrl(tea.url) ? { image: absUrl(tea.url) } : {}),
+  address: {
+    "@type": "PostalAddress",
+    addressLocality: "Москва",
+    streetAddress: "ул. Полярная, 25 (ЖК «Полярная 25»)",
+    addressCountry: "RU",
+  },
+  openingHoursSpecification: [
+    {
+      "@type": "OpeningHoursSpecification",
+      dayOfWeek: ["Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"],
+      opens: "08:30",
+      closes: "22:00",
+    },
+  ],
+  sameAs: [TG_BOOK, TG_CHANNEL],
+};
+
 export const Route = createFileRoute("/")({
-  head: () => meta("Север помнит — ручной массаж у Александры", "Ручной массаж тела и лица, лимфодренаж и сезонные ритуалы с северными травами. Тёплый кабинет Александры в ЖК «Полярная 25», запись в Telegram."),
+  head: () => ({
+    ...meta(
+      "Север помнит — ручной массаж у Александры в Москве",
+      "Ручной массаж тела и лица, лимфодренаж и сезонные ритуалы с северными травами. Тёплый кабинет Александры в Москве, ЖК «Полярная 25», запись в Telegram.",
+      { path: "/", image: "/images/tea-card.jpg" },
+    ),
+    scripts: [{ type: "application/ld+json", children: JSON.stringify(jsonLd) }],
+  }),
   component: Index,
 });
 

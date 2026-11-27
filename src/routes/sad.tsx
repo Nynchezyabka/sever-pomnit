@@ -9,7 +9,12 @@ import { SCALES, addCare, branches, careLeft, diarySummary, empty, litres, water
 import { db } from "@/lib/cabinet";
 
 export const Route = createFileRoute("/sad")({
-  head: () => meta("Зимний сад · Север помнит", "Тихая игра заботы, советы Александры, дневник самочувствия и настоящие подарки за визиты на массаж."),
+  head: () =>
+    meta(
+      "Зимний сад · Север помнит",
+      "Тихая игра заботы, советы Александры, дневник самочувствия и настоящие подарки за визиты на массаж.",
+      { path: "/sad", image: "/images/gingerbread.jpg" },
+    ),
   component: Garden,
 });
 

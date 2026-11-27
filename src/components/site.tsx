@@ -98,7 +98,7 @@ export function Footer() {
           <a href={TG_BOOK} className="hover:text-foreground">Записаться: @Sashsa_S</a>
           <a href={TG_CHANNEL} className="hover:text-foreground">Канал в Telegram</a>
           <a href="tel:+79166363660" className="hover:text-foreground">{PHONE}</a>
-          <a href="/privacy" className="hover:text-foreground">Обработка персональных данных</a>
+          <Link to="/privacy" className="hover:text-foreground">Обработка персональных данных</Link>
         </div>
       </div>
     </footer>
@@ -123,16 +123,37 @@ export function GhostButton({ href, children }: { href: string; children: React.
   );
 }
 
-export function meta(title: string, description: string) {
+const SITE_URL = (import.meta.env["VITE_SITE_URL"] as string | undefined)?.replace(/\/+$/, "");
+
+export function absUrl(path: string): string | undefined {
+  if (!SITE_URL) return undefined;
+  return `${SITE_URL}${path.startsWith("/") ? path : `/${path}`}`;
+}
+
+export function meta(
+  title: string,
+  description: string,
+  opts?: { path?: string; image?: string; noindex?: boolean },
+) {
+  const canonical = opts?.path ? absUrl(opts.path) : undefined;
+  const imagePath = opts?.image ?? "/images/tea-card.jpg";
+  const ogImage = absUrl(imagePath) ?? imagePath;
   return {
     meta: [
       { title },
       { name: "description", content: description },
+      ...(opts?.noindex ? [{ name: "robots", content: "noindex, nofollow" }] : []),
       { property: "og:title", content: title },
       { property: "og:description", content: description },
       { property: "og:type", content: "website" },
+      { property: "og:locale", content: "ru_RU" },
+      { property: "og:site_name", content: "Север помнит" },
+      ...(canonical ? [{ property: "og:url", content: canonical }] : []),
+      { property: "og:image", content: ogImage },
       { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:image", content: ogImage },
     ],
+    ...(canonical && !opts?.noindex ? { links: [{ rel: "canonical", href: canonical }] } : {}),
   };
 }
 

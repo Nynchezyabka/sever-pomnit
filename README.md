@@ -16,25 +16,17 @@
 5. Интерактивная «дофаминовая» фича для клиентов: «Зимний сад заботы» — интерактивное дерево/сад, где после сеанса, выпитого стакана воды или растяжки распускаются веточки, зажигаются тёплые огоньки и виден прогресс абонемента. пример  "собиралки" - как сад вот в этом приложении @project:b74a324e-f650-49b5-9b78-d1eac74a8575:"Rozitta’s Mires" 
 прикладываю текущие прайс листы, эстетику и предполагаемый логотип, позже ещё что-нибудь найду. Ещё у неё есть настоящий рог лося
 
-This project was built with [Lovable](https://lovable.dev).
-
-**Live app**: https://sever-pomnit.lovable.app
-
-## Build with Lovable
-
-Continue developing this project in the [Lovable editor](https://lovable.dev/projects/8e10be76-5ad0-4abb-90b9-9da42f1e593e).
-
-- **Ship faster**: describe what you want to build and Lovable handles the code.
-- **Stay in sync**: every change made in Lovable is committed straight to this repository.
-- **Full ownership**: this code is yours. Push to `main` on GitHub and your changes sync back into Lovable, ready for your next prompt.
-
-## Development
-
-Prefer working locally? You need Node.js and npm — [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating).
+## Разработка и сборка
 
 ```sh
-git clone <this-repository-url>
-cd <repository-name>
-npm i
+npm install
 npm run dev
 ```
+
+Сборка статического сайта с пререндерингом (SSG) для Yandex Cloud Object Storage:
+
+```sh
+VITE_SITE_URL=https://sever-pomnit.ru npm run build
+```
+
+Готовый сайт сохраняется в `dist/client`. Подробная инструкция по настройке бакета, HTTPS, домена и автодеплоя: [docs/yandex-cloud.md](docs/yandex-cloud.md). Настройка личного кабинета и базы клиентов в Supabase: [docs/supabase-layero.md](docs/supabase-layero.md) (разделы 1, 2, 4–7).
