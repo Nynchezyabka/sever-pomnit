@@ -1,46 +1,13 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { BOOK_TEMPLATE, BookButton, CallButton, CopyButton, Logo, PHONE, PhotoSlot, TG_BOOK, TG_CHANNEL, absUrl, meta } from "@/components/site";
+import { BOOK_TEMPLATE, BookButton, CopyButton, Logo, PhotoSlot, meta } from "@/components/site";
 import { TeaRitual } from "@/components/ritual";
-import { BookingForm } from "@/components/booking";
 const tea = { url: "/images/tea-card.jpg" };
 const ginger = { url: "/images/gingerbread.jpg" };
 const sign = { url: "/images/amber_sign.jpg" };
 const mood = { url: "/images/moodboard.jpg" };
 
-const jsonLd = {
-  "@context": "https://schema.org",
-  "@type": "HealthAndBeautyBusiness",
-  name: "Север помнит — пространство ручного массажа и заботы",
-  description: "Ручной массаж тела и лица, лимфодренаж и сезонные ритуалы с северными травами у Александры Суворовой в Москве.",
-  telephone: PHONE,
-  ...(absUrl("/") ? { url: absUrl("/") } : {}),
-  ...(absUrl(tea.url) ? { image: absUrl(tea.url) } : {}),
-  address: {
-    "@type": "PostalAddress",
-    addressLocality: "Москва",
-    streetAddress: "ул. Полярная, 25 (ЖК «Полярная 25»)",
-    addressCountry: "RU",
-  },
-  openingHoursSpecification: [
-    {
-      "@type": "OpeningHoursSpecification",
-      dayOfWeek: ["Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"],
-      opens: "08:30",
-      closes: "22:00",
-    },
-  ],
-  sameAs: [TG_BOOK, TG_CHANNEL],
-};
-
 export const Route = createFileRoute("/")({
-  head: () => ({
-    ...meta(
-      "Север помнит — ручной массаж у Александры в Москве",
-      "Ручной массаж тела и лица, лимфодренаж и сезонные ритуалы с северными травами. Тёплый кабинет Александры в Москве, ЖК «Полярная 25», запись в Telegram.",
-      { path: "/", image: "/images/tea-card.jpg" },
-    ),
-    scripts: [{ type: "application/ld+json", children: JSON.stringify(jsonLd) }],
-  }),
+  head: () => meta("Север помнит — ручной массаж у Александры", "Ручной массаж тела и лица, лимфодренаж и сезонные ритуалы с северными травами. Тёплый кабинет Александры в ЖК «Полярная 25», запись в Telegram."),
   component: Index,
 });
 
@@ -63,13 +30,9 @@ function Index() {
           </p>
           <div className="mt-9 flex flex-wrap gap-3">
             <BookButton />
-            <CallButton />
             <Link to="/menu" hash="gift" className="inline-flex min-h-11 items-center px-3 text-muted-foreground underline underline-offset-4 hover:text-foreground">Подарить сертификат</Link>
           </div>
-          <p className="mt-4 text-sm text-muted-foreground">
-            Не открывается Telegram? Позвоните или <a href="#zapis" className="underline underline-offset-4 hover:text-foreground">оставьте заявку ниже</a>.
-          </p>
-          <p className="mt-3 text-sm text-muted-foreground">Вт–Сб, 8:30–22:00 · <span className="whitespace-nowrap">ЖК «Полярная 25»</span></p>
+          <p className="mt-5 text-sm text-muted-foreground">Вт–Сб, 8:30–22:00 · <span className="whitespace-nowrap">ЖК «Полярная 25»</span></p>
         </div>
         <div className="relative isolate">
           <img src={tea.url} alt="Травяной чай, шишки, свеча и открытка «Здесь можно не спешить»" className="aspect-[4/5] w-full rounded-[2rem] object-cover shadow-2xl" />
@@ -81,7 +44,7 @@ function Index() {
         <div className="max-w-2xl">
           <p className="text-sm uppercase tracking-[0.25em] text-amber">Как проходит сеанс</p>
           <h2 className="mt-3 text-3xl sm:text-4xl md:text-5xl">Вас слушают. И слышат</h2>
-          <p className="mt-4 text-lg text-muted-foreground">У меня нет единой схемы для всех. Перед массажем я спрошу о вашем комфорте и пожеланиях, а во время сеанса буду ориентироваться на ваши ощущения.</p>
+          <p className="mt-4 text-lg text-muted-foreground">У меня нет единой схемы для всех. Перед массажем я спрошу о самочувствии и пожеланиях, а во время сеанса буду ориентироваться на ваши ощущения.</p>
         </div>
         <div className="mt-10 grid gap-4 sm:grid-cols-2">
           {reasons.map((r) => (
@@ -108,7 +71,7 @@ function Index() {
         </div>
       </section>
 
-      <section id="zapis" className="mx-auto max-w-6xl scroll-mt-24 px-5 py-10 md:py-16">
+      <section className="mx-auto max-w-6xl px-5 py-10 md:py-16">
         <p className="text-sm uppercase tracking-[0.25em] text-amber">Запись</p>
         <h2 className="mt-3 text-3xl sm:text-4xl md:text-5xl">Как записаться</h2>
         <ol className="mt-10 grid gap-4 md:grid-cols-3">
@@ -120,8 +83,7 @@ function Index() {
             <li key={t} className="rounded-3xl border bg-card/70 p-6"><h3 className="text-2xl">{t}</h3><p className="mt-2 text-muted-foreground">{d}</p></li>
           ))}
         </ol>
-        <div className="mt-8 flex flex-wrap gap-3"><CopyButton text={BOOK_TEMPLATE}>Скопировать сообщение</CopyButton><BookButton>Открыть Telegram</BookButton><CallButton /></div>
-        <div className="mt-8 max-w-2xl"><BookingForm /></div>
+        <div className="mt-8 flex flex-wrap gap-3"><CopyButton text={BOOK_TEMPLATE}>Скопировать сообщение</CopyButton><BookButton>Открыть Telegram</BookButton></div>
       </section>
 
       <TeaRitual />

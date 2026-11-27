@@ -1,5 +1,6 @@
 import { useEffect, useState, type ReactNode } from "react";
-import { api, getStoredSession, hasBackendUrl, onSessionChange, type Session } from "@/lib/cabinet";
+import type { Session } from "@supabase/supabase-js";
+import { db } from "@/lib/cabinet";
 import { Link } from "@tanstack/react-router";
 
 export const field = "w-full rounded-2xl border border-foreground/35 bg-card/60 px-4 py-3 text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50";
@@ -11,19 +12,24 @@ export const card = "rounded-[2rem] border bg-card/60 p-6";
 export function useSession() {
   const [session, setSession] = useState<Session | null>(null);
   const [ready, setReady] = useState(false);
-
   useEffect(() => {
-    setSession(getStoredSession());
-    setReady(true);
-    if (hasBackendUrl()) void api.refreshSession();
-    return onSessionChange(setSession);
+    const c = db();
+    if (!c) { setReady(true); return; }
+    c.auth.getSession().then(({ data }) => { setSession(data.session); setReady(true); });
+    const { data } = c.auth.onAuthStateChange((_e, s) => setSession(s));
+    return () => data.subscription.unsubscribe();
   }, []);
-
   return { session, ready };
 }
 
-export function useIsMaster(session: Session | null) {
-  return session ? session.user.is_master : null;
+export function useIsMaster(userId: string | undefined) {
+  const [master, setMaster] = useState<boolean | null>(null);
+  useEffect(() => {
+    const c = db();
+    if (!c || !userId) { setMaster(null); return; }
+    c.rpc("is_master").then(({ data }) => setMaster(data === true));
+  }, [userId]);
+  return master;
 }
 
 export function Shell({ title, children }: { title: string; children: ReactNode }) {
@@ -55,14 +61,18 @@ export function AuthForm() {
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
-    if (!hasBackendUrl()) return;
+    const c = db(); if (!c) return;
     setBusy(true); setMsg("");
     if (mode === "up") {
-      const { error } = await api.signUp({ email, password, full_name: name, phone });
-      if (error) setMsg(error.message);
+      const { data, error } = await c.auth.signUp({
+        email, password,
+        options: { data: { full_name: name, phone }, emailRedirectTo: `${window.location.origin}/kabinet` },
+      });
+      if (error) setMsg(friendly(error.message));
+      else if (!data.session) setMsg("Почти готово: мы отправили письмо, откройте ссылку из него, чтобы войти.");
     } else {
-      const { error } = await api.signIn({ email, password });
-      if (error) setMsg(error.message);
+      const { error } = await c.auth.signInWithPassword({ email, password });
+      if (error) setMsg(friendly(error.message));
     }
     setBusy(false);
   }
@@ -88,18 +98,19 @@ export function AuthForm() {
   );
 }
 
+function friendly(m: string) {
+  if (/invalid login/i.test(m)) return "Почта или пароль не подошли. Попробуйте ещё раз.";
+  if (/already registered/i.test(m)) return "Такая почта уже есть — просто войдите.";
+  if (/not confirmed/i.test(m)) return "Сначала откройте ссылку из письма.";
+  return m;
+}
+
 /** Required consent checkbox for forms that collect personal data. */
 export function Consent() {
   return (
     <label className="flex items-start gap-3 text-sm text-muted-foreground">
       <input type="checkbox" required className="mt-1 h-4 w-4 shrink-0 accent-primary" />
-      <span>
-        Соглашаюсь на обработку персональных данных и принимаю{" "}
-        <Link to="/privacy" target="_blank" rel="noreferrer" className="underline hover:text-foreground">
-          Политику конфиденциальности
-        </Link>
-        .
-      </span>
+      <span>Соглашаюсь на <Link to="/privacy" target="_blank" className="underline hover:text-foreground">обработку персональных данных</Link> для связи и записи.</span>
     </label>
   );
 }

@@ -2,19 +2,19 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { meta } from "@/components/site";
 import { AuthForm, NotConfigured, Shell, btn, card, field, lbl, ghost, useIsMaster, useSession } from "@/components/cabinet-ui";
-import { api, hasBackendUrl, subscriptionLine, type Profile, type Subscription, type Visit } from "@/lib/cabinet";
+import { db, subscriptionLine, type Profile, type Subscription, type Visit } from "@/lib/cabinet";
 
 export const Route = createFileRoute("/kabinet")({
   ssr: false,
-  head: () => meta("Личный кабинет · Север помнит", "Ваши абонементы, визиты и пожелания к сеансу у Александры.", { noindex: true }),
+  head: () => meta("Личный кабинет · Север помнит", "Ваши абонементы, визиты и пожелания к сеансу у Александры."),
   component: Cabinet,
 });
 
 function Cabinet() {
   const { session, ready } = useSession();
-  const master = useIsMaster(session);
+  const master = useIsMaster(session?.user.id);
   if (!ready) return <Shell title="Личный кабинет"><p className="text-muted-foreground">Минутку…</p></Shell>;
-  if (!hasBackendUrl()) return <Shell title="Личный кабинет"><NotConfigured /></Shell>;
+  if (!db()) return <Shell title="Личный кабинет"><NotConfigured /></Shell>;
   if (!session) return (
     <Shell title="Личный кабинет">
       <p className="text-muted-foreground">Здесь хранятся ваши абонементы, история визитов и пожелания к сеансу. Можно один раз рассказать о себе, чтобы не повторять это перед каждым массажем.</p>
@@ -34,29 +34,16 @@ function Mine({ userId }: { userId: string }) {
   const [saved, setSaved] = useState(false);
 
   useEffect(() => {
-    let alive = true;
-    api.getCabinet().then(({ data }) => {
-      if (!alive || !data) return;
-      setP(data.profile);
-      setSubs(data.subscriptions);
-      setVisits(data.visits);
-    });
-    return () => { alive = false; };
+    const c = db()!;
+    c.from("profiles").select("*").eq("id", userId).maybeSingle().then(({ data }) => setP(data as Profile | null));
+    c.from("subscriptions").select("*").eq("client_id", userId).order("created_at", { ascending: false }).then(({ data }) => setSubs((data ?? []) as Subscription[]));
+    c.from("visits").select("*").eq("client_id", userId).order("visited_on", { ascending: false }).then(({ data }) => setVisits((data ?? []) as Visit[]));
   }, [userId]);
 
   async function save(e: React.FormEvent) {
     e.preventDefault(); if (!p) return;
-    const { data, error } = await api.updateProfile({
-      full_name: p.full_name,
-      phone: p.phone,
-      telegram: p.telegram,
-      oil: p.oil,
-      tea: p.tea,
-      pressure: p.pressure,
-      silence: p.silence,
-      wishes: p.wishes,
-    });
-    if (data?.profile) setP(data.profile);
+    const { id: _id, created_at: _c, ...rest } = p;
+    const { error } = await db()!.from("profiles").update(rest).eq("id", userId);
     setSaved(!error);
   }
   const set = <K extends keyof Profile>(k: K, v: Profile[K]) => { setSaved(false); setP((x) => (x ? { ...x, [k]: v } : x)); };
@@ -71,8 +58,8 @@ function Mine({ userId }: { userId: string }) {
     </div>
 
     {p && <form onSubmit={save} className={`${card} space-y-3`}>
-      <h2 className="font-display text-2xl">Пожелания к сеансу</h2>
-      <p className="text-sm text-muted-foreground">Всё необязательно — можно один раз указать комфортные условия для визита.</p>
+      <h2 className="font-display text-2xl">О себе</h2>
+      <p className="text-sm text-muted-foreground">Всё необязательно. Я прочитаю это перед сеансом.</p>
       <label className={lbl}><span>Имя</span><input className={field} value={p.full_name} onChange={(e) => set("full_name", e.target.value)} /></label>
       <label className={lbl}><span>Телефон</span><input className={field} type="tel" autoComplete="tel" value={p.phone} onChange={(e) => set("phone", e.target.value)} /></label>
       <label className={lbl}><span>Ник в Telegram</span><input className={field} value={p.telegram} onChange={(e) => set("telegram", e.target.value)} /></label>
@@ -80,7 +67,7 @@ function Mine({ userId }: { userId: string }) {
       <label className={lbl}><span>Чай после сеанса</span><input className={field} value={p.tea} onChange={(e) => set("tea", e.target.value)} /></label>
       <label className={lbl}><span>Нажим: мягче / средний / сильнее</span><input className={field} value={p.pressure} onChange={(e) => set("pressure", e.target.value)} /></label>
       <label className="flex items-center gap-3"><input type="checkbox" checked={p.silence} onChange={(e) => set("silence", e.target.checked)} /> Хочу сеанс в тишине</label>
-      <label className={lbl}><span>Особые пожелания (комфортный нажим, зоны внимания, предпочтения по маслам)</span><textarea className={field} rows={3} value={p.wishes} onChange={(e) => set("wishes", e.target.value)} /></label>
+      <label className={lbl}><span>Что ещё важно знать: чувствительные места, самочувствие</span><textarea className={field} rows={3} value={p.wishes} onChange={(e) => set("wishes", e.target.value)} /></label>
       <button className={btn}>Сохранить</button>
       {saved && <span className="ml-3 text-sm text-amber">Сохранено</span>}
     </form>}
@@ -90,6 +77,6 @@ function Mine({ userId }: { userId: string }) {
       {visits.length === 0 ? <p className="mt-2 text-muted-foreground">Здесь появятся ваши сеансы.</p> :
         <ul className="mt-3 space-y-1">{visits.map((v) => <li key={v.id}>{new Date(v.visited_on).toLocaleDateString("ru-RU")} — {v.service}</li>)}</ul>}
     </div>
-    <button className={ghost} onClick={() => api.signOut()}>Выйти</button>
+    <button className={ghost} onClick={() => db()!.auth.signOut()}>Выйти</button>
   </>;
 }

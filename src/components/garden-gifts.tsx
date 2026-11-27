@@ -22,7 +22,7 @@ export function GiftShelf({ visits, claimed, onClaim, busy = false }: {
               <div className="min-w-0 flex-1">
                 <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
                   <h3 className="font-display text-xl">{gift.title}</h3>
-                  <span className="text-sm text-muted-foreground">{gift.at}-й визит</span>
+                  <span className="text-xs text-muted-foreground">{gift.at}-й визит</span>
                 </div>
                 <p className="mt-1 text-sm leading-relaxed text-muted-foreground">{gift.description}</p>
                 <p className={`mt-2 text-sm ${gift.status === "ready" ? "text-amber" : "text-muted-foreground"}`} aria-live="polite">

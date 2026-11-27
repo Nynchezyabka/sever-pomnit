@@ -1,9 +1,0 @@
-{
-  "name": "sever-pomnit-backend",
-  "version": "1.0.0",
-  "private": true,
-  "type": "module",
-  "dependencies": {
-    "ydb-sdk": "^5.11.1"
-  }
-}
