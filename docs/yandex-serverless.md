@@ -18,8 +18,8 @@
 2. Тип базы: **Serverless**.
 3. Имя: например `sever-pomnit-db`. Нажмите **Создать**.
 4. Дождитесь статуса **Running** и сохраните со страницы обзора базы:
-   - **Эндпоинт** (`YDB_ENDPOINT`), обычно `grpcs://ydb.serverless.yandexcloud.net:2135`
-   - **Размещение / База данных** (`YDB_DATABASE`), строка вида `/ru-central1/b1g.../etn...`
+   - **Эндпоинт** (`YDB_ENDPOINT`), только адрес сервера без `/?database=...`: `grpcs://ydb.serverless.yandexcloud.net:2135`
+   - **Размещение / База данных** (`YDB_DATABASE`), строка вида `/ru-central1/b1g.../etn...` *(это вторая часть из строки подключения)*
 5. Слева откройте **Навигация → SQL-запрос**, вставьте целиком содержимое файла `yandex-function/schema.yql` и нажмите **Выполнить**.
    Должны создаться 7 таблиц: `users`, `profiles`, `subscriptions`, `visits`, `client_notes`, `booking_requests`, `gift_claims`.
 
@@ -45,9 +45,9 @@
 1. Подготовьте ZIP-архив с кодом бэкенда (из корня репозитория):
    ```bash
    cd yandex-function
-   zip ../yandex-function.zip index.mjs core.mjs ydb-store.mjs package.json package-lock.json
+   zip ../yandex-function.zip index.js core.mjs ydb-store.mjs package.json package-lock.json
    ```
-   *(Не включайте `node_modules` и `core.test.mjs` — Yandex Cloud сам установит зависимости из `package.json` при сборке версии функции.)*
+   *(Не включайте `node_modules` и `core.test.mjs`, и сжимайте именно эти 5 файлов внутри папки, а не саму папку `yandex-function` — `index.js` должен лежать в корне архива.)*
 
 2. В консоли Yandex Cloud откройте **Cloud Functions → Создать функцию**:
    - Имя: `sever-pomnit-api`.
