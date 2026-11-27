@@ -32,8 +32,7 @@ jobs:
       - name: Build static site
         env:
           VITE_SITE_URL: ${{ vars.VITE_SITE_URL }}
-          VITE_SUPABASE_URL: ${{ vars.VITE_SUPABASE_URL }}
-          VITE_SUPABASE_PUBLISHABLE_KEY: ${{ vars.VITE_SUPABASE_PUBLISHABLE_KEY }}
+          VITE_API_URL: ${{ vars.VITE_API_URL }}
         run: npm run build
 
       - name: Deploy to Yandex Object Storage

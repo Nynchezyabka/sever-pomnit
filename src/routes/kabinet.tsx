@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { meta } from "@/components/site";
 import { AuthForm, NotConfigured, Shell, btn, card, field, lbl, ghost, useIsMaster, useSession } from "@/components/cabinet-ui";
-import { db, subscriptionLine, type Profile, type Subscription, type Visit } from "@/lib/cabinet";
+import { api, hasBackendUrl, subscriptionLine, type Profile, type Subscription, type Visit } from "@/lib/cabinet";
 
 export const Route = createFileRoute("/kabinet")({
   ssr: false,
@@ -12,9 +12,9 @@ export const Route = createFileRoute("/kabinet")({
 
 function Cabinet() {
   const { session, ready } = useSession();
-  const master = useIsMaster(session?.user.id);
+  const master = useIsMaster(session);
   if (!ready) return <Shell title="Личный кабинет"><p className="text-muted-foreground">Минутку…</p></Shell>;
-  if (!db()) return <Shell title="Личный кабинет"><NotConfigured /></Shell>;
+  if (!hasBackendUrl()) return <Shell title="Личный кабинет"><NotConfigured /></Shell>;
   if (!session) return (
     <Shell title="Личный кабинет">
       <p className="text-muted-foreground">Здесь хранятся ваши абонементы, история визитов и пожелания к сеансу. Можно один раз рассказать о себе, чтобы не повторять это перед каждым массажем.</p>
@@ -34,16 +34,29 @@ function Mine({ userId }: { userId: string }) {
   const [saved, setSaved] = useState(false);
 
   useEffect(() => {
-    const c = db()!;
-    c.from("profiles").select("*").eq("id", userId).maybeSingle().then(({ data }) => setP(data as Profile | null));
-    c.from("subscriptions").select("*").eq("client_id", userId).order("created_at", { ascending: false }).then(({ data }) => setSubs((data ?? []) as Subscription[]));
-    c.from("visits").select("*").eq("client_id", userId).order("visited_on", { ascending: false }).then(({ data }) => setVisits((data ?? []) as Visit[]));
+    let alive = true;
+    api.getCabinet().then(({ data }) => {
+      if (!alive || !data) return;
+      setP(data.profile);
+      setSubs(data.subscriptions);
+      setVisits(data.visits);
+    });
+    return () => { alive = false; };
   }, [userId]);
 
   async function save(e: React.FormEvent) {
     e.preventDefault(); if (!p) return;
-    const { id: _id, created_at: _c, ...rest } = p;
-    const { error } = await db()!.from("profiles").update(rest).eq("id", userId);
+    const { data, error } = await api.updateProfile({
+      full_name: p.full_name,
+      phone: p.phone,
+      telegram: p.telegram,
+      oil: p.oil,
+      tea: p.tea,
+      pressure: p.pressure,
+      silence: p.silence,
+      wishes: p.wishes,
+    });
+    if (data?.profile) setP(data.profile);
     setSaved(!error);
   }
   const set = <K extends keyof Profile>(k: K, v: Profile[K]) => { setSaved(false); setP((x) => (x ? { ...x, [k]: v } : x)); };
@@ -77,6 +90,6 @@ function Mine({ userId }: { userId: string }) {
       {visits.length === 0 ? <p className="mt-2 text-muted-foreground">Здесь появятся ваши сеансы.</p> :
         <ul className="mt-3 space-y-1">{visits.map((v) => <li key={v.id}>{new Date(v.visited_on).toLocaleDateString("ru-RU")} — {v.service}</li>)}</ul>}
     </div>
-    <button className={ghost} onClick={() => db()!.auth.signOut()}>Выйти</button>
+    <button className={ghost} onClick={() => api.signOut()}>Выйти</button>
   </>;
 }

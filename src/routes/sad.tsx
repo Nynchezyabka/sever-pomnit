@@ -6,7 +6,7 @@ import { GardenScene } from "@/components/garden-scene";
 import { useSession } from "@/components/cabinet-ui";
 import { CopyButton, TG_BOOK, TG_CHANNEL, meta } from "@/components/site";
 import { SCALES, addCare, branches, careLeft, diarySummary, empty, exportGardenCode, importGardenCode, waterToday, DAILY, type DiaryEntry, type GardenState, type GiftId } from "@/lib/garden";
-import { db } from "@/lib/cabinet";
+import { api, hasBackendUrl } from "@/lib/cabinet";
 
 export const Route = createFileRoute("/sad")({
   head: () =>
@@ -70,18 +70,14 @@ function Garden() {
   useEffect(() => {
     let alive = true;
     if (!userId) { setVisits(0); setClaimed([]); setGiftsLoading(false); setGiftError(""); return; }
-    const c = db();
-    if (!c) { setGiftsLoading(false); return; }
+    if (!hasBackendUrl()) { setGiftsLoading(false); return; }
     setGiftsLoading(true); setGiftError("");
-    Promise.all([
-      c.from("visits").select("id", { count: "exact", head: true }).eq("client_id", userId),
-      c.from("gift_claims").select("gift").eq("client_id", userId),
-    ]).then(([v, g]) => {
+    api.getGardenGifts().then(({ data, error }) => {
       if (!alive) return;
-      if (v.error || g.error) setGiftError("Не получилось загрузить историю визитов. Обновите страницу или напишите мне в Telegram.");
+      if (error || !data) setGiftError("Не получилось загрузить историю визитов. Обновите страницу или напишите мне в Telegram.");
       else {
-        setVisits(v.count ?? 0);
-        setClaimed(((g.data ?? []) as { gift: GiftId }[]).map((x) => x.gift));
+        setVisits(data.visits_count);
+        setClaimed(data.claimed);
       }
       setGiftsLoading(false);
     }).catch(() => { if (alive) { setGiftError("Не получилось загрузить историю визитов. Проверьте соединение и обновите страницу."); setGiftsLoading(false); } });

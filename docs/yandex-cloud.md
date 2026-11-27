@@ -1,6 +1,6 @@
 # Размещение сайта на Yandex Cloud Object Storage (0 ₽/мес)
 
-Сайт собирается в статические HTML-страницы (SSG + пререндеринг публичных маршрутов `/`, `/menu`, `/master`, `/sad`, `/privacy`) и работает в России без привязки к Lovable или Layero. Личный кабинет (`/kabinet`) и картотека (`/kartoteka`) работают из браузера напрямую с Supabase.
+Сайт собирается в статические HTML-страницы (SSG + пререндеринг публичных маршрутов `/`, `/menu`, `/master`, `/sad`, `/privacy`) и работает в России без привязки к Lovable или Layero. Личный кабинет (`/kabinet`), картотека (`/kartoteka`) и форма записи работают через **Yandex Cloud Functions + YDB Serverless** ([инструкция](yandex-serverless.md)).
 
 ---
 
@@ -31,7 +31,7 @@
 3. В DNS вашего домена (у регистратора или в Yandex Cloud DNS) пропишите:
    - Для корневого домена `@`: `ANAME` (если регистратор поддерживает) на `<имя-бакета>.website.yandexcloud.net` — или перенесите NS-записи домена в **Yandex Cloud DNS**, где `ANAME` работает бесплатно и настраивается в 2 клика.
    - Для `www`: `CNAME` на `<имя-бакета>.website.yandexcloud.net`.
-4. В **Supabase → Authentication → URL Configuration** обновите **Site URL** на ваш новый адрес (например `https://sever-pomnit.ru`), чтобы ссылки подтверждения почты вели на правильный домен.
+4. В переменной окружения `ALLOWED_ORIGINS` вашей Cloud Function добавьте новый адрес сайта (например `https://sever-pomnit.ru`).
 
 ---
 
@@ -63,8 +63,7 @@
 
 ### Variables (переменные сборки):
 - `VITE_SITE_URL` — публичный адрес сайта без слеша в конце (например `https://sever-pomnit.ru`). Используется для `sitemap.xml`, `robots.txt`, `canonical` и `og:url`.
-- `VITE_SUPABASE_URL` — Project URL из Supabase (**Project Settings → API**)
-- `VITE_SUPABASE_PUBLISHABLE_KEY` — publishable / anon key из Supabase
+- `VITE_API_URL` — ссылка на публичную Cloud Function (например `https://functions.yandexcloud.net/d4e...`), настроенную по инструкции `docs/yandex-serverless.md`. Если не задана, сайт работает в режиме визитки с записью через Telegram и звонок.
 
 После каждого `git push` в ветку `main` сайт соберётся и автоматически обновится в Yandex Object Storage.
 
@@ -75,8 +74,7 @@
 ```bash
 npm install
 VITE_SITE_URL=https://sever-pomnit.ru \
-VITE_SUPABASE_URL=https://xxxx.supabase.co \
-VITE_SUPABASE_PUBLISHABLE_KEY=sb_publishable_xxx \
+VITE_API_URL=https://functions.yandexcloud.net/d4e... \
 npm run build
 ```
 

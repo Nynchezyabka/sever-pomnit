@@ -1,9 +1,21 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { meta } from "@/components/site";
 import { NotConfigured, Shell, btn, card, field, ghost, lbl, useIsMaster, useSession } from "@/components/cabinet-ui";
 import { GiftShelf } from "@/components/garden-gifts";
-import { db, matchesClient, sessionsLeft, subscriptionLine, type GiftClaim, type Note, type Profile, type Subscription, type Visit } from "@/lib/cabinet";
+import {
+  api,
+  hasBackendUrl,
+  matchesClient,
+  sessionsLeft,
+  subscriptionLine,
+  type BookingRequest,
+  type GiftClaim,
+  type Note,
+  type Profile,
+  type Subscription,
+  type Visit,
+} from "@/lib/cabinet";
 import type { GiftId } from "@/lib/garden";
 
 export const Route = createFileRoute("/kartoteka")({
@@ -14,24 +26,51 @@ export const Route = createFileRoute("/kartoteka")({
 
 function Kartoteka() {
   const { session, ready } = useSession();
-  const master = useIsMaster(session?.user.id);
-  if (!ready || (session && master === null)) return <Shell title="Картотека"><p className="text-muted-foreground">Минутку…</p></Shell>;
-  if (!db()) return <Shell title="Картотека"><NotConfigured /></Shell>;
+  const master = useIsMaster(session);
+  if (!ready) return <Shell title="Картотека"><p className="text-muted-foreground">Минутку…</p></Shell>;
+  if (!hasBackendUrl()) return <Shell title="Картотека"><NotConfigured /></Shell>;
   if (!session || !master) return <Shell title="Картотека"><p className="text-muted-foreground">Этот раздел только для мастера.</p><Link to="/kabinet" className={ghost}>Войти</Link></Shell>;
-  return <Shell title="Картотека"><Requests /><Clients /></Shell>;
+  return <Shell title="Картотека"><MasterWorkspace /></Shell>;
 }
 
-function Clients() {
+function MasterWorkspace() {
+  const [requests, setRequests] = useState<BookingRequest[]>([]);
   const [list, setList] = useState<Profile[]>([]);
   const [q, setQ] = useState("");
   const [open, setOpen] = useState<Profile | null>(null);
   const [adding, setAdding] = useState(false);
-  const load = () => db()!.from("profiles").select("*").order("created_at", { ascending: false }).then(({ data }) => setList((data ?? []) as Profile[]));
-  useEffect(() => { void load(); }, []);
+
+  const load = useCallback(async () => {
+    const { data } = await api.getMasterOverview();
+    if (!data) return;
+    setRequests(data.requests);
+    setList(data.clients);
+  }, []);
+
+  useEffect(() => { void load(); }, [load]);
+
   if (open) return <ClientCard p={open} back={() => { setOpen(null); void load(); }} onLinked={(linked) => { setOpen(linked); void load(); }} />;
   if (adding) return <NewClient back={() => setAdding(false)} created={(p) => { setAdding(false); void load(); setOpen(p); }} />;
+
   const shown = list.filter((p) => matchesClient(p, q));
+
   return <>
+    {requests.length > 0 && (
+      <div className={card}>
+        <h2 className="font-display text-2xl">Новые заявки</h2>
+        <ul className="mt-3 space-y-3">{requests.map((r) => (
+          <li key={r.id} className="flex flex-wrap items-start justify-between gap-3 border-b border-border pb-3">
+            <div>
+              <p>{r.name} · <span className="text-amber">{r.contact}</span></p>
+              <p className="text-sm text-muted-foreground">{[r.service, r.wish_time, r.comment].filter(Boolean).join(" · ")}</p>
+              <p className="text-xs text-muted-foreground">{new Date(r.created_at).toLocaleString("ru-RU")}</p>
+            </div>
+            <button className={ghost} onClick={async () => { await api.markRequestDone(r.id); void load(); }}>Связались с клиентом</button>
+          </li>
+        ))}</ul>
+      </div>
+    )}
+
     <div className="flex flex-wrap items-end gap-3">
       <label className={`${lbl} flex-1`}><span>Поиск</span><input className={field} placeholder="Имя, телефон или Telegram" value={q} onChange={(e) => setQ(e.target.value)} /></label>
       <button className={btn} onClick={() => setAdding(true)}>+ Добавить клиента</button>
@@ -41,7 +80,8 @@ function Clients() {
       <li key={p.id}><button onClick={() => setOpen(p)} className={`${card} w-full text-left hover:border-primary/60`}>
         <span className="font-display text-lg">{p.full_name || "Без имени"}</span>{p.offline && <span className="ml-2 text-sm text-muted-foreground">· внесён вручную</span>}
         <span className="block text-sm text-muted-foreground">{[p.phone, p.telegram].filter(Boolean).join(" · ") || "контакты не указаны"}</span>
-      </button></li>))}</ul>
+      </button></li>
+    ))}</ul>
   </>;
 }
 
@@ -51,20 +91,26 @@ function NewClient({ back, created }: { back: () => void; created: (p: Profile) 
   const [err, setErr] = useState("");
   const [busy, setBusy] = useState(false);
   const set = (k: keyof typeof f) => (e: React.ChangeEvent<HTMLInputElement>) => setF({ ...f, [k]: e.target.type === "number" ? Number(e.target.value) : e.target.value });
+
   async function save(e: React.FormEvent) {
     e.preventDefault(); setBusy(true); setErr("");
-    const c = db()!;
-    const { data, error } = await c.from("profiles").insert({ full_name: f.full_name.trim(), phone: f.phone.trim(), telegram: f.telegram.trim().replace(/^@/, ""), offline: true }).select().single();
-    if (error || !data) { setBusy(false); setErr("Не получилось сохранить. Обновите SQL-схему по инструкции (раздел 11) и попробуйте ещё раз."); return; }
-    const p = data as Profile;
-    if (f.note.trim()) await c.from("client_notes").insert({ client_id: p.id, body: f.note.trim() });
-    if (withSub && f.total > 0) {
-      const used = Math.min(f.total, Math.max(0, f.total - f.left));
-      const r = await c.from("subscriptions").insert({ client_id: p.id, title: f.title, total_sessions: f.total, used_sessions: used, expires_on: f.until || null });
-      if (r.error) setErr("Клиент сохранён, но абонемент не добавился — добавьте его в карточке.");
+    const { data, error } = await api.createOfflineClient({
+      full_name: f.full_name.trim(),
+      phone: f.phone.trim(),
+      telegram: f.telegram.trim().replace(/^@/, ""),
+      note: f.note.trim() || undefined,
+      subscription: withSub && f.total > 0
+        ? { title: f.title, total_sessions: f.total, left_sessions: f.left, expires_on: f.until || null }
+        : undefined,
+    });
+    setBusy(false);
+    if (error || !data?.profile) {
+      setErr(error?.message || "Не получилось сохранить клиента.");
+      return;
     }
-    setBusy(false); created(p);
+    created(data.profile);
   }
+
   return <>
     <button className={ghost} onClick={back}>← Все клиенты</button>
     <form onSubmit={save} className={`${card} space-y-3`}>
@@ -105,60 +151,61 @@ function ClientCard({ p, back, onLinked }: { p: Profile; back: () => void; onLin
   const [linkBusy, setLinkBusy] = useState(false);
   const [linkErr, setLinkErr] = useState("");
 
-  async function load() {
-    const c = db()!;
-    const [s, v, n, g] = await Promise.all([
-      c.from("subscriptions").select("*").eq("client_id", p.id).order("created_at", { ascending: false }),
-      c.from("visits").select("*").eq("client_id", p.id).order("visited_on", { ascending: false }),
-      c.from("client_notes").select("*").eq("client_id", p.id).order("created_at", { ascending: false }),
-      c.from("gift_claims").select("*").eq("client_id", p.id).order("created_at", { ascending: false }),
-    ]);
-    setSubs((s.data ?? []) as Subscription[]); setVisits((v.data ?? []) as Visit[]); setNotes((n.data ?? []) as Note[]); setClaims((g.data ?? []) as GiftClaim[]);
-  }
-  useEffect(() => { void load(); }, [p.id]);
+  const load = useCallback(async () => {
+    const { data } = await api.getMasterClient(p.id);
+    if (!data) return;
+    setSubs(data.subscriptions);
+    setVisits(data.visits);
+    setNotes(data.notes);
+    setClaims(data.gift_claims);
+  }, [p.id]);
+
+  useEffect(() => { void load(); }, [load]);
 
   async function linkAccount(e: React.FormEvent) {
     e.preventDefault();
     const email = linkEmail.trim();
     if (!email) return;
     setLinkBusy(true); setLinkErr("");
-    const c = db()!;
-    const { data: targetId, error } = await c.rpc("link_offline_profile", { _offline_id: p.id, _email: email });
-    if (error || !targetId) {
-      const msg = error?.message ?? "";
-      if (/account_not_found/i.test(msg)) setLinkErr("Аккаунт с такой почтой не найден. Попросите клиента сначала зарегистрироваться в кабинете.");
-      else if (/offline_profile_not_found/i.test(msg)) setLinkErr("Эта карточка уже связана с аккаунтом.");
-      else setLinkErr("Не получилось связать карточку. Убедитесь, что выполнен обновлённый файл supabase/setup.sql (раздел 11).");
+    const { data, error } = await api.linkOfflineProfile(p.id, email);
+    if (error || !data?.profile) {
+      if (error?.code === "account_not_found") setLinkErr("Аккаунт с такой почтой не найден. Попросите клиента сначала зарегистрироваться в кабинете.");
+      else if (error?.code === "offline_profile_not_found") setLinkErr("Эта карточка уже связана с аккаунтом.");
+      else setLinkErr(error?.message || "Не получилось связать карточку.");
       setLinkBusy(false);
       return;
     }
-    const { data: linked } = await c.from("profiles").select("*").eq("id", targetId as string).maybeSingle();
     setLinkBusy(false);
-    if (linked) onLinked(linked as Profile);
-    else back();
+    onLinked(data.profile);
   }
 
-  async function useOne(s: Subscription) {
-    const { error } = await db()!.rpc("use_session", { _sub: s.id, _service: "" });
-    setErr(error ? "Не получилось списать сеанс." : ""); void load();
+  async function spendSession(s: Subscription) {
+    const { error } = await api.useSession(s.id);
+    setErr(error ? "Не получилось списать сеанс." : "");
+    void load();
   }
   async function addSub(e: React.FormEvent) {
     e.preventDefault();
-    const { error } = await db()!.from("subscriptions").insert({ client_id: p.id, title, total_sessions: total, expires_on: until || null });
-    setErr(error ? "Не получилось добавить абонемент." : ""); void load();
+    const { error } = await api.addSubscription({ client_id: p.id, title, total_sessions: total, expires_on: until || null });
+    setErr(error ? "Не получилось добавить абонемент." : "");
+    void load();
   }
   async function addNote(e: React.FormEvent) {
     e.preventDefault(); if (!note.trim()) return;
-    await db()!.from("client_notes").insert({ client_id: p.id, body: note.trim() }); setNote(""); void load();
+    await api.addNote(p.id, note.trim());
+    setNote("");
+    void load();
   }
   async function addVisit() {
-    await db()!.from("visits").insert({ client_id: p.id, service: "Сеанс" }); void load();
+    await api.addVisit(p.id, "Сеанс");
+    void load();
   }
   async function claimGift(gift: GiftId) {
     setBusyGift(gift); setGiftErr("");
-    const { error } = await db()!.from("gift_claims").insert({ client_id: p.id, gift });
-    setGiftErr(error ? "Не получилось отметить подарок. Обновите SQL-схему по инструкции и попробуйте ещё раз." : "");
-    setBusyGift(null); await load();
+    const { error } = await api.claimGift(p.id, gift);
+    setGiftErr(error ? "Не получилось отметить подарок." : "");
+    setBusyGift(null);
+    await load();
   }
   const tg = p.telegram.replace("@", "");
 
@@ -194,8 +241,9 @@ function ClientCard({ p, back, onLinked }: { p: Profile; back: () => void; onLin
       <ul className="mt-3 space-y-3">{subs.map((s) => (
         <li key={s.id} className="flex flex-wrap items-center justify-between gap-2">
           <span>{s.title} — <span className="text-amber">{subscriptionLine(s)}</span></span>
-          {sessionsLeft(s) > 0 && <button className={btn} onClick={() => useOne(s)}>Списать сеанс сегодня</button>}
-        </li>))}</ul>
+          {sessionsLeft(s) > 0 && <button className={btn} onClick={() => spendSession(s)}>Списать сеанс сегодня</button>}
+        </li>
+      ))}</ul>
       <form onSubmit={addSub} className="mt-5 grid gap-2 sm:grid-cols-[1fr_6rem_10rem_auto]">
         <input className={field} value={title} onChange={(e) => setTitle(e.target.value)} />
         <input className={field} type="number" min={1} value={total} onChange={(e) => setTotal(Number(e.target.value))} title="Сеансов" />
@@ -223,22 +271,4 @@ function ClientCard({ p, back, onLinked }: { p: Profile; back: () => void; onLin
       {giftErr && <p className="mt-3 text-sm text-amber">{giftErr}</p>}
     </div>
   </>;
-}
-
-type Req = { id: string; name: string; contact: string; service: string; wish_time: string; comment: string; created_at: string };
-function Requests() {
-  const [list, setList] = useState<Req[]>([]);
-  const load = () => db()!.from("booking_requests").select("*").eq("done", false).order("created_at", { ascending: false }).then(({ data }) => setList((data ?? []) as Req[]));
-  useEffect(() => { load(); }, []);
-  if (list.length === 0) return null;
-  return <div className={card}>
-    <h2 className="font-display text-2xl">Новые заявки</h2>
-    <ul className="mt-3 space-y-3">{list.map((r) => (
-      <li key={r.id} className="flex flex-wrap items-start justify-between gap-3 border-b border-border pb-3">
-        <div><p>{r.name} · <span className="text-amber">{r.contact}</span></p>
-          <p className="text-sm text-muted-foreground">{[r.service, r.wish_time, r.comment].filter(Boolean).join(" · ")}</p>
-          <p className="text-xs text-muted-foreground">{new Date(r.created_at).toLocaleString("ru-RU")}</p></div>
-        <button className={ghost} onClick={async () => { await db()!.from("booking_requests").update({ done: true }).eq("id", r.id); load(); }}>Связались с клиентом</button>
-      </li>))}</ul>
-  </div>;
 }
