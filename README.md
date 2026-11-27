@@ -29,4 +29,4 @@ npm run dev
 VITE_SITE_URL=https://sever-pomnit.ru npm run build
 ```
 
-Готовый сайт сохраняется в `dist/client`. Подробная инструкция по настройке бакета, HTTPS, домена и автодеплоя: [docs/yandex-cloud.md](docs/yandex-cloud.md). Настройка личного кабинета и базы клиентов в Supabase: [docs/supabase-layero.md](docs/supabase-layero.md) (разделы 1, 2, 4–7).
+Готовый сайт сохраняется в `dist/client`. Подробная инструкция по настройке бакета, HTTPS, домена и автодеплоя: [docs/yandex-cloud.md](docs/yandex-cloud.md). Настройка личного кабинета и базы клиентов в Supabase: [docs/supabase-layero.md](docs/supabase-layero.md) (разделы 1, 2, 4–7). Перенос базы Supabase на российский VPS (152-ФЗ): [docs/supabase-rf.md](docs/supabase-rf.md).

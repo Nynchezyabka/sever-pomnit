@@ -58,8 +58,8 @@ function Mine({ userId }: { userId: string }) {
     </div>
 
     {p && <form onSubmit={save} className={`${card} space-y-3`}>
-      <h2 className="font-display text-2xl">О себе</h2>
-      <p className="text-sm text-muted-foreground">Всё необязательно. Я прочитаю это перед сеансом.</p>
+      <h2 className="font-display text-2xl">Пожелания к сеансу</h2>
+      <p className="text-sm text-muted-foreground">Всё необязательно — можно один раз указать комфортные условия для визита.</p>
       <label className={lbl}><span>Имя</span><input className={field} value={p.full_name} onChange={(e) => set("full_name", e.target.value)} /></label>
       <label className={lbl}><span>Телефон</span><input className={field} type="tel" autoComplete="tel" value={p.phone} onChange={(e) => set("phone", e.target.value)} /></label>
       <label className={lbl}><span>Ник в Telegram</span><input className={field} value={p.telegram} onChange={(e) => set("telegram", e.target.value)} /></label>
@@ -67,7 +67,7 @@ function Mine({ userId }: { userId: string }) {
       <label className={lbl}><span>Чай после сеанса</span><input className={field} value={p.tea} onChange={(e) => set("tea", e.target.value)} /></label>
       <label className={lbl}><span>Нажим: мягче / средний / сильнее</span><input className={field} value={p.pressure} onChange={(e) => set("pressure", e.target.value)} /></label>
       <label className="flex items-center gap-3"><input type="checkbox" checked={p.silence} onChange={(e) => set("silence", e.target.checked)} /> Хочу сеанс в тишине</label>
-      <label className={lbl}><span>Что ещё важно знать: чувствительные места, самочувствие</span><textarea className={field} rows={3} value={p.wishes} onChange={(e) => set("wishes", e.target.value)} /></label>
+      <label className={lbl}><span>Особые пожелания (комфортный нажим, зоны внимания, предпочтения по маслам)</span><textarea className={field} rows={3} value={p.wishes} onChange={(e) => set("wishes", e.target.value)} /></label>
       <button className={btn}>Сохранить</button>
       {saved && <span className="ml-3 text-sm text-amber">Сохранено</span>}
     </form>}

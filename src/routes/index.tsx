@@ -81,7 +81,7 @@ function Index() {
         <div className="max-w-2xl">
           <p className="text-sm uppercase tracking-[0.25em] text-amber">Как проходит сеанс</p>
           <h2 className="mt-3 text-3xl sm:text-4xl md:text-5xl">Вас слушают. И слышат</h2>
-          <p className="mt-4 text-lg text-muted-foreground">У меня нет единой схемы для всех. Перед массажем я спрошу о самочувствии и пожеланиях, а во время сеанса буду ориентироваться на ваши ощущения.</p>
+          <p className="mt-4 text-lg text-muted-foreground">У меня нет единой схемы для всех. Перед массажем я спрошу о вашем комфорте и пожеланиях, а во время сеанса буду ориентироваться на ваши ощущения.</p>
         </div>
         <div className="mt-10 grid gap-4 sm:grid-cols-2">
           {reasons.map((r) => (

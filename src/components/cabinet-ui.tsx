@@ -110,7 +110,13 @@ export function Consent() {
   return (
     <label className="flex items-start gap-3 text-sm text-muted-foreground">
       <input type="checkbox" required className="mt-1 h-4 w-4 shrink-0 accent-primary" />
-      <span>Соглашаюсь на <Link to="/privacy" target="_blank" className="underline hover:text-foreground">обработку персональных данных</Link> для связи и записи.</span>
+      <span>
+        Соглашаюсь на обработку персональных данных и принимаю{" "}
+        <Link to="/privacy" target="_blank" rel="noreferrer" className="underline hover:text-foreground">
+          Политику конфиденциальности
+        </Link>
+        .
+      </span>
     </label>
   );
 }

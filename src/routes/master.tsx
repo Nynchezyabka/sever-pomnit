@@ -39,7 +39,7 @@ function Master() {
 
       <section className="mt-20">
         <h2 className="text-3xl sm:text-4xl md:text-5xl">Если вы у меня впервые</h2>
-        <p className="mt-4 max-w-2xl text-muted-foreground">Перед сеансом я коротко расспрошу о самочувствии и пожеланиях. Вот ещё несколько вещей, которые помогут чувствовать себя спокойнее.</p>
+        <p className="mt-4 max-w-2xl text-muted-foreground">Перед сеансом я коротко расспрошу о комфорте и пожеланиях. Вот ещё несколько вещей, которые помогут чувствовать себя спокойнее.</p>
         <div className="mt-8 grid gap-4 sm:grid-cols-2">
           {firstVisit.map(([t, d]) => <div key={t} className="rounded-3xl border bg-card/70 p-6"><h3 className="text-2xl">{t}</h3><p className="mt-2 text-muted-foreground">{d}</p></div>)}
         </div>

@@ -110,8 +110,11 @@ export function Footer() {
           <a href={TG_BOOK} className="hover:text-foreground">Записаться: @Sashsa_S</a>
           <a href={TG_CHANNEL} className="hover:text-foreground">Канал в Telegram</a>
           <a href="tel:+79166363660" className="hover:text-foreground">{PHONE}</a>
-          <Link to="/privacy" className="hover:text-foreground">Обработка персональных данных</Link>
+          <Link to="/privacy" className="hover:text-foreground">Политика конфиденциальности</Link>
         </div>
+      </div>
+      <div className="mx-auto max-w-6xl border-t px-5 py-5 text-xs text-muted-foreground/80">
+        Услуги носят эстетический и оздоровительный характер и не являются медицинскими. Советы на сайте носят рекомендательный характер.
       </div>
     </footer>
   );
