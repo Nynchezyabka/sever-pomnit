@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { BookButton, GhostButton, PHONE, PhotoSlot, TG_CHANNEL, meta } from "@/components/site";
+import { BookButton, CallButton, GhostButton, PHONE, PhotoSlot, TG_CHANNEL, meta } from "@/components/site";
 
 export const Route = createFileRoute("/master")({
   head: () =>
@@ -33,7 +33,7 @@ function Master() {
             <div className="rounded-2xl border bg-card/70 p-5"><dt className="text-sm text-muted-foreground">Приём</dt><dd className="mt-1 text-xl">Вт–Сб, 8:30–22:00</dd></div>
             <div className="rounded-2xl border bg-card/70 p-5"><dt className="text-sm text-muted-foreground">Телефон</dt><dd className="mt-1 text-xl"><a href="tel:+79166363660">{PHONE}</a></dd></div>
           </dl>
-          <div className="mt-8 flex flex-wrap gap-3"><BookButton /><GhostButton href={TG_CHANNEL}>Канал в Telegram</GhostButton></div>
+          <div className="mt-8 flex flex-wrap gap-3"><BookButton /><CallButton /><GhostButton href={TG_CHANNEL}>Канал в Telegram</GhostButton></div>
         </div>
       </div>
 

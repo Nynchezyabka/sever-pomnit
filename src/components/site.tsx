@@ -1,10 +1,12 @@
 import { useEffect, useState } from "react";
 import { Link } from "@tanstack/react-router";
+import { Phone, UserRound } from "lucide-react";
 const logo = { url: "/images/logo.jpg" };
 
 export const TG_BOOK = "https://t.me/Sashsa_S";
 export const TG_CHANNEL = "https://t.me/massage_sever_pomnit";
 export const PHONE = "+7 916 636-36-60";
+export const PHONE_HREF = "tel:+79166363660";
 
 export function Logo({ className = "" }: { className?: string }) {
   return (
@@ -19,7 +21,6 @@ const nav = [
   { to: "/menu", label: "Меню заботы" },
   { to: "/master", label: "О мастере" },
   { to: "/sad", label: "Зимний сад" },
-  { to: "/kabinet", label: "Кабинет" },
 ] as const;
 
 export function Header() {
@@ -36,24 +37,31 @@ export function Header() {
           <Logo className="h-9 w-7 shrink-0 sm:h-11 sm:w-8" />
           <span className="font-display text-xl tracking-wide">Север помнит</span>
         </Link>
-        <nav className="hidden flex-wrap gap-1 text-sm md:flex">
-          {nav.map((n) => (
-            <Link key={n.to} to={n.to} activeOptions={{ exact: true }}
-              className="whitespace-nowrap rounded-full px-3 py-1.5 text-muted-foreground transition-colors hover:text-foreground"
-              activeProps={{ className: "whitespace-nowrap rounded-full px-3 py-1.5 bg-secondary text-foreground" }}>
-              {n.label}
-            </Link>
-          ))}
-        </nav>
-        <button type="button" aria-label={open ? "Закрыть меню" : "Открыть меню"} aria-expanded={open}
-          onClick={() => setOpen((o) => !o)}
-          className="flex h-11 w-11 items-center justify-center rounded-full border bg-card text-foreground md:hidden">
-          <span className="relative block h-3.5 w-5">
-            <span className={`absolute left-0 h-0.5 w-5 rounded bg-current transition ${open ? "top-1.5 rotate-45" : "top-0"}`} />
-            <span className={`absolute left-0 top-1.5 h-0.5 w-5 rounded bg-current transition ${open ? "opacity-0" : ""}`} />
-            <span className={`absolute left-0 h-0.5 w-5 rounded bg-current transition ${open ? "top-1.5 -rotate-45" : "top-3"}`} />
-          </span>
-        </button>
+        <div className="flex items-center gap-2">
+          <nav className="hidden flex-wrap gap-1 text-sm md:flex">
+            {nav.map((n) => (
+              <Link key={n.to} to={n.to} activeOptions={{ exact: true }}
+                className="whitespace-nowrap rounded-full px-3 py-1.5 text-muted-foreground transition-colors hover:text-foreground"
+                activeProps={{ className: "whitespace-nowrap rounded-full px-3 py-1.5 bg-secondary text-foreground" }}>
+                {n.label}
+              </Link>
+            ))}
+          </nav>
+          <Link to="/kabinet" aria-label="Личный кабинет" title="Личный кабинет" onClick={() => setOpen(false)}
+            className="flex h-11 w-11 items-center justify-center rounded-full border border-transparent text-muted-foreground transition-colors hover:border-border hover:bg-secondary/60 hover:text-foreground"
+            activeProps={{ className: "flex h-11 w-11 items-center justify-center rounded-full bg-secondary text-foreground" }}>
+            <UserRound className="h-5 w-5" aria-hidden />
+          </Link>
+          <button type="button" aria-label={open ? "Закрыть меню" : "Открыть меню"} aria-expanded={open}
+            onClick={() => setOpen((o) => !o)}
+            className="flex h-11 w-11 items-center justify-center rounded-full border bg-card text-foreground md:hidden">
+            <span className="relative block h-3.5 w-5">
+              <span className={`absolute left-0 h-0.5 w-5 rounded bg-current transition ${open ? "top-1.5 rotate-45" : "top-0"}`} />
+              <span className={`absolute left-0 top-1.5 h-0.5 w-5 rounded bg-current transition ${open ? "opacity-0" : ""}`} />
+              <span className={`absolute left-0 h-0.5 w-5 rounded bg-current transition ${open ? "top-1.5 -rotate-45" : "top-3"}`} />
+            </span>
+          </button>
+        </div>
       </div>
     </header>
       {open && (
@@ -69,10 +77,14 @@ export function Header() {
           </nav>
           <div className="mt-8 space-y-2 rounded-2xl border bg-card p-5 text-sm text-muted-foreground">
             <a href={TG_BOOK} target="_blank" rel="noreferrer"
-              className="mb-3 flex items-center justify-center rounded-full bg-primary px-6 py-3 font-medium text-primary-foreground">
+              className="flex items-center justify-center rounded-full bg-primary px-6 py-3 font-medium text-primary-foreground">
               Записаться в Telegram
             </a>
-            <a href="tel:+79166363660" className="block text-foreground">{PHONE}</a>
+            <a href={PHONE_HREF}
+              className="mb-3 flex items-center justify-center gap-2 rounded-full border border-primary/50 px-6 py-3 font-medium text-foreground">
+              <Phone className="h-4 w-4" aria-hidden /> Позвонить {PHONE}
+            </a>
+            <Link to="/kabinet" onClick={() => setOpen(false)} className="block py-1 text-foreground underline underline-offset-4">Личный кабинет</Link>
             <p className="whitespace-nowrap">ЖК «Полярная 25»</p>
             <p>Вт–Сб, 8:30–22:00</p>
           </div>
@@ -108,7 +120,17 @@ export function Footer() {
 export function BookButton({ children = "Записаться на сеанс" }: { children?: React.ReactNode }) {
   return (
     <a href={TG_BOOK} target="_blank" rel="noreferrer"
-      className="inline-flex items-center justify-center rounded-full bg-primary px-7 py-3.5 font-medium text-primary-foreground glow transition hover:brightness-110">
+      className="inline-flex min-h-11 items-center justify-center rounded-full bg-primary px-7 py-3.5 font-medium text-primary-foreground glow transition hover:brightness-110">
+      {children}
+    </a>
+  );
+}
+
+export function CallButton({ children = "Позвонить" }: { children?: React.ReactNode }) {
+  return (
+    <a href={PHONE_HREF}
+      className="inline-flex min-h-11 items-center justify-center gap-2 rounded-full border border-primary/50 px-7 py-3.5 font-medium text-foreground transition hover:bg-primary/10">
+      <Phone className="h-4 w-4" aria-hidden />
       {children}
     </a>
   );

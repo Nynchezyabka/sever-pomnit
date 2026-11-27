@@ -1,14 +1,15 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { db } from "@/lib/cabinet";
 import { Consent, btn, card, field, lbl } from "@/components/cabinet-ui";
-import { BookButton } from "@/components/site";
+import { BookButton, CallButton } from "@/components/site";
 
-/** Booking request form; without a database it falls back to the Telegram button. */
+/** Booking request form; without a database it falls back to Telegram and phone buttons. */
 export function BookingForm() {
   const [f, setF] = useState({ name: "", contact: "", service: "", wish_time: "", comment: "" });
   const [state, setState] = useState<"idle" | "busy" | "ok" | "err">("idle");
-  const c = typeof window !== "undefined" ? db() : null;
-  if (!c) return <div className={card}><p className="text-muted-foreground">Записаться можно у меня в Telegram.</p><div className="mt-4"><BookButton /></div></div>;
+  const [c, setC] = useState<ReturnType<typeof db>>(null);
+  useEffect(() => { setC(db()); }, []);
+  if (!c) return <div className={card}><p className="text-muted-foreground">Записаться можно у меня в Telegram или по телефону.</p><div className="mt-4 flex flex-wrap gap-3"><BookButton /><CallButton /></div></div>;
   const set = (k: keyof typeof f) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => setF({ ...f, [k]: e.target.value });
 
   async function send(e: React.FormEvent) {

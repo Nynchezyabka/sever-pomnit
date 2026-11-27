@@ -5,7 +5,7 @@ import { GiftShelf } from "@/components/garden-gifts";
 import { GardenScene } from "@/components/garden-scene";
 import { useSession } from "@/components/cabinet-ui";
 import { CopyButton, TG_BOOK, TG_CHANNEL, meta } from "@/components/site";
-import { SCALES, addCare, branches, careLeft, diarySummary, empty, litres, waterToday, DAILY, type DiaryEntry, type GardenState, type GiftId } from "@/lib/garden";
+import { SCALES, addCare, branches, careLeft, diarySummary, empty, exportGardenCode, importGardenCode, waterToday, DAILY, type DiaryEntry, type GardenState, type GiftId } from "@/lib/garden";
 import { db } from "@/lib/cabinet";
 
 export const Route = createFileRoute("/sad")({
@@ -53,6 +53,10 @@ function Garden() {
   const [claimed, setClaimed] = useState<GiftId[]>([]);
   const [giftsLoading, setGiftsLoading] = useState(false);
   const [giftError, setGiftError] = useState("");
+  const [resetAsk, setResetAsk] = useState(false);
+  const [transferOpen, setTransferOpen] = useState<"save" | "load" | null>(null);
+  const [restoreInput, setRestoreInput] = useState("");
+  const [transferMsg, setTransferMsg] = useState("");
 
   useEffect(() => {
     try {
@@ -107,12 +111,30 @@ function Garden() {
 
   const n = branches(s, visits);
   const currentTip = tips[tip] ?? tips[0]!;
+  const gardenCode = transferOpen === "save" ? exportGardenCode(s, diary) : "";
+
+  const restoreByCode = (e: React.FormEvent) => {
+    e.preventDefault();
+    const restored = importGardenCode(restoreInput);
+    if (!restored) {
+      setTransferMsg("Код не подошёл. Проверьте, что он скопирован целиком (начинается с SP1:).");
+      return;
+    }
+    setS(restored.state);
+    setDiary(restored.diary);
+    localStorage.setItem(KEY, JSON.stringify(restored.state));
+    localStorage.setItem(DKEY, JSON.stringify(restored.diary));
+    setRestoreInput("");
+    setTransferOpen(null);
+    setMsg("Сад и дневник восстановлены.");
+    setTransferMsg("");
+  };
 
   return (
     <div className="mx-auto max-w-5xl px-4 py-8 sm:px-5 sm:py-12">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <p className="text-xs uppercase tracking-[0.25em] text-amber">Тихая игра заботы</p>
+          <p className="text-sm uppercase tracking-[0.25em] text-amber">Тихая игра заботы</p>
           <h1 className="mt-2 text-4xl sm:text-5xl">Зимний сад</h1>
         </div>
         <p className="max-w-md text-sm text-muted-foreground">Вода, разминка и дневник открывают находки на северной поляне, а потом — дверь в Тайную чайную. Настоящие подарки открывают только визиты, которые я отметила в кабинете.</p>
@@ -124,7 +146,7 @@ function Garden() {
             const Icon = item.icon;
             return (
               <button key={item.id} type="button" onClick={() => setTab(item.id)} aria-current={tab === item.id ? "page" : undefined}
-                className={`flex min-h-14 flex-col items-center justify-center gap-1 rounded-2xl px-1 text-xs transition sm:flex-row sm:gap-2 sm:text-sm ${tab === item.id ? "bg-secondary text-foreground" : "text-muted-foreground hover:bg-secondary/40"}`}>
+                className={`flex min-h-14 flex-col items-center justify-center gap-1 rounded-2xl px-1 text-sm transition sm:flex-row sm:gap-2 ${tab === item.id ? "bg-secondary text-foreground" : "text-muted-foreground hover:bg-secondary/40"}`}>
                 <Icon className="h-4 w-4" aria-hidden /> {item.label}
               </button>
             );
@@ -140,35 +162,73 @@ function Garden() {
               <div className="mt-3 rounded-3xl border border-primary/25 bg-secondary/45 p-4">
                 <div className="flex items-baseline justify-between gap-2">
                   <span className="flex items-center gap-2 font-medium"><Droplets className="h-5 w-5 text-amber" aria-hidden /> Вода</span>
-                  <span className="text-sm text-muted-foreground" aria-live="polite">{waterToday(s, today)} из {DAILY.water} · {litres(waterToday(s, today))} л</span>
+                  <span className="text-sm text-muted-foreground" aria-live="polite">{waterToday(s, today)} из {DAILY.water}</span>
                 </div>
                 <div className="mt-3 grid grid-cols-8 gap-1">
                   {Array.from({ length: DAILY.water }, (_, i) => {
                     const full = i < waterToday(s, today);
                     return (
                       <button key={i} type="button" onClick={() => care("water")} disabled={full || i !== waterToday(s, today)}
-                        aria-label={full ? `Стакан ${i + 1} выпит` : `Отметить стакан ${i + 1}`}
+                        aria-label={full ? `Стакан ${i + 1} отмечен` : `Отметить стакан ${i + 1}`}
                         className="flex min-h-11 items-center justify-center rounded-xl transition enabled:hover:bg-secondary active:scale-90 disabled:cursor-default">
                         <Droplet className={`h-7 w-7 transition ${full ? "fill-amber text-amber" : i === waterToday(s, today) ? "text-amber" : "text-muted-foreground/50"}`} aria-hidden />
                       </button>
                     );
                   })}
                 </div>
-                <p className="mt-2 text-sm text-muted-foreground">{careLeft(s, "water", today) > 0 ? "Нажмите на следующую каплю — один стакан, 250 мл." : "Два литра есть. Отлично для лимфотока!"}</p>
+                <p className="mt-2 text-sm text-muted-foreground">{careLeft(s, "water", today) > 0 ? "Вода по самочувствию — нажмите на каплю, чтобы отметить стакан." : "Спасибо себе за заботу."}</p>
+                <p className="mt-1 text-sm text-muted-foreground/85">Если врач ограничил жидкость, ориентируйтесь на его рекомендации.</p>
               </div>
               <div className="mt-3 grid grid-cols-1 gap-3">
                 <button type="button" onClick={() => care("stretch")} className="flex min-h-28 flex-col items-center justify-center gap-2 rounded-3xl border border-primary/25 bg-secondary/45 p-3 text-center transition hover:bg-secondary active:scale-[0.98]">
-                  <Sprout className="h-7 w-7 text-amber" aria-hidden /><span className="font-medium">Мягкая разминка</span><span className="text-xs text-muted-foreground">{careLeft(s, "stretch", today) ? "1 раз в день" : "завтра снова"}</span>
+                  <Sprout className="h-7 w-7 text-amber" aria-hidden /><span className="font-medium">Мягкая разминка</span><span className="text-sm text-muted-foreground">{careLeft(s, "stretch", today) ? "1 раз в день" : "завтра снова"}</span>
                 </button>
               </div>
               <button type="button" onClick={() => setTab("diary")} className="mt-3 flex min-h-12 w-full items-center justify-center gap-2 rounded-full border px-4 text-sm transition hover:bg-secondary/40">
                 <BookOpen className="h-4 w-4" aria-hidden /> Записать самочувствие
               </button>
               <p className="mt-3 min-h-6 text-center font-display text-lg italic text-amber" aria-live="polite">{msg}</p>
-              <div className="mt-2 flex items-center justify-between gap-3 text-xs text-muted-foreground">
+              <div className="mt-2 flex flex-wrap items-center justify-between gap-2 text-sm text-muted-foreground">
                 <span>Сад хранится на этом устройстве.</span>
-                <button type="button" onClick={() => confirm("Начать сад заново? Домашние отметки исчезнут, дневник и подарки за визиты останутся.") && save(empty)} className="inline-flex min-h-11 items-center gap-1 underline"><RotateCcw className="h-3 w-3" aria-hidden /> заново</button>
+                <div className="flex flex-wrap items-center gap-3">
+                  <button type="button" onClick={() => { setTransferOpen(transferOpen === "save" ? null : "save"); setTransferMsg(""); }} className="inline-flex min-h-11 items-center underline hover:text-foreground">Сохранить кодом</button>
+                  <button type="button" onClick={() => { setTransferOpen(transferOpen === "load" ? null : "load"); setTransferMsg(""); }} className="inline-flex min-h-11 items-center underline hover:text-foreground">Восстановить по коду</button>
+                  <button type="button" onClick={() => setResetAsk(true)} className="inline-flex min-h-11 items-center gap-1 underline hover:text-foreground"><RotateCcw className="h-3.5 w-3.5" aria-hidden /> заново</button>
+                </div>
               </div>
+              {resetAsk && (
+                <div className="mt-3 rounded-2xl border border-primary/35 bg-background/60 p-4 text-sm" role="alertdialog" aria-label="Подтверждение сброса сада">
+                  <p className="font-medium text-foreground">Точно начать сад заново?</p>
+                  <p className="mt-1 text-muted-foreground">Домашние отметки исчезнут, дневник и подарки за визиты останутся.</p>
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    <button type="button" onClick={() => { save(empty); setFresh(0); setMsg(""); setResetAsk(false); }} className="inline-flex min-h-11 items-center rounded-full bg-primary px-5 py-2 text-sm font-medium text-primary-foreground">Да</button>
+                    <button type="button" onClick={() => setResetAsk(false)} className="inline-flex min-h-11 items-center rounded-full border border-primary/50 px-5 py-2 text-sm">Оставить</button>
+                  </div>
+                </div>
+              )}
+              {transferOpen === "save" && (
+                <div className="mt-3 rounded-2xl border border-primary/35 bg-background/60 p-4 text-sm">
+                  <p className="text-muted-foreground">Скопируйте этот код, чтобы перенести сад и дневник на другой телефон или браузер:</p>
+                  <textarea readOnly value={gardenCode} rows={2} onFocus={(e) => e.currentTarget.select()} className="mt-2 w-full rounded-xl border bg-background/70 p-2.5 text-sm text-foreground" />
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    <CopyButton text={gardenCode}>Скопировать код</CopyButton>
+                    <button type="button" onClick={() => setTransferOpen(null)} className="inline-flex min-h-11 items-center px-3 text-sm text-muted-foreground underline">Закрыть</button>
+                  </div>
+                </div>
+              )}
+              {transferOpen === "load" && (
+                <form onSubmit={restoreByCode} className="mt-3 rounded-2xl border border-primary/35 bg-background/60 p-4 text-sm">
+                  <label className="block">
+                    <span className="text-muted-foreground">Вставьте сохранённый код сада:</span>
+                    <textarea value={restoreInput} onChange={(e) => { setRestoreInput(e.target.value); setTransferMsg(""); }} placeholder="SP1:..." rows={2} required className="mt-2 w-full rounded-xl border bg-background/70 p-2.5 text-sm text-foreground" />
+                  </label>
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    <button type="submit" className="inline-flex min-h-11 items-center rounded-full bg-primary px-5 py-2 text-sm font-medium text-primary-foreground">Восстановить</button>
+                    <button type="button" onClick={() => { setTransferOpen(null); setTransferMsg(""); }} className="inline-flex min-h-11 items-center px-3 text-sm text-muted-foreground underline">Отмена</button>
+                  </div>
+                  {transferMsg && <p role="alert" className="mt-2 text-sm text-amber">{transferMsg}</p>}
+                </form>
+              )}
             </div>
           </div>
         )}
@@ -176,10 +236,10 @@ function Garden() {
         {tab === "tips" && (
           <div className="p-4 sm:p-7">
             <article className="rounded-3xl border bg-background/35 p-5 sm:p-7">
-              <p className="text-xs uppercase tracking-[0.18em] text-amber">{currentTip.tag}</p>
+              <p className="text-sm uppercase tracking-[0.18em] text-amber">{currentTip.tag}</p>
               <h2 className="mt-2 text-2xl sm:text-3xl">{currentTip.title}</h2>
               <p className="mt-3 max-w-2xl text-muted-foreground">{currentTip.text}</p>
-              <p className="mt-4 text-xs text-muted-foreground">Из моих заметок в Telegram. Это идеи для заботы, а не медицинские назначения.</p>
+              <p className="mt-4 text-sm text-muted-foreground">Из моих заметок в Telegram. Это идеи для заботы, а не медицинские назначения.</p>
             </article>
             <div className="mt-5 flex flex-wrap items-center justify-between gap-3">
               <div className="flex items-center gap-2">
@@ -219,7 +279,7 @@ function Garden() {
                 <label key={sc.key} className="block rounded-2xl bg-background/30 p-3">
                   <span className="flex justify-between gap-3"><span className="font-medium">{sc.label}</span><span className="text-amber">{draft[sc.key]}/5</span></span>
                   <input type="range" min={1} max={5} value={draft[sc.key]} onChange={(e) => setDraft({ ...draft, [sc.key]: Number(e.target.value) })} className="mt-2 w-full accent-[var(--amber)]" />
-                  <span className="flex justify-between gap-2 text-xs text-muted-foreground"><span>{sc.low}</span><span className="text-right">{sc.high}</span></span>
+                  <span className="flex justify-between gap-2 text-sm text-muted-foreground"><span>{sc.low}</span><span className="text-right">{sc.high}</span></span>
                 </label>
               ))}
             </div>

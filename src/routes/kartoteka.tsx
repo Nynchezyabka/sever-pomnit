@@ -28,7 +28,7 @@ function Clients() {
   const [adding, setAdding] = useState(false);
   const load = () => db()!.from("profiles").select("*").order("created_at", { ascending: false }).then(({ data }) => setList((data ?? []) as Profile[]));
   useEffect(() => { void load(); }, []);
-  if (open) return <ClientCard p={open} back={() => { setOpen(null); void load(); }} />;
+  if (open) return <ClientCard p={open} back={() => { setOpen(null); void load(); }} onLinked={(linked) => { setOpen(linked); void load(); }} />;
   if (adding) return <NewClient back={() => setAdding(false)} created={(p) => { setAdding(false); void load(); setOpen(p); }} />;
   const shown = list.filter((p) => matchesClient(p, q));
   return <>
@@ -69,7 +69,7 @@ function NewClient({ back, created }: { back: () => void; created: (p: Profile) 
     <button className={ghost} onClick={back}>← Все клиенты</button>
     <form onSubmit={save} className={`${card} space-y-3`}>
       <h2 className="font-display text-2xl">Новый клиент</h2>
-      <p className="text-sm text-muted-foreground">Для тех, кто ходит давно и ещё не регистрировался на сайте. Если человек потом зарегистрируется с этим же телефоном, карточка привяжется к его кабинету сама.</p>
+      <p className="text-sm text-muted-foreground">Для тех, кто ходит давно и ещё не регистрировался на сайте. Когда человек зарегистрируется в кабинете и назовёт свою почту, карточку можно будет связать с его аккаунтом.</p>
       <label className={lbl}><span>Имя</span><input className={field} required maxLength={100} value={f.full_name} onChange={set("full_name")} /></label>
       <div className="grid gap-3 sm:grid-cols-2">
         <label className={lbl}><span>Телефон</span><input className={field} type="tel" value={f.phone} onChange={set("phone")} /></label>
@@ -89,7 +89,7 @@ function NewClient({ back, created }: { back: () => void; created: (p: Profile) 
   </>;
 }
 
-function ClientCard({ p, back }: { p: Profile; back: () => void }) {
+function ClientCard({ p, back, onLinked }: { p: Profile; back: () => void; onLinked: (linked: Profile) => void }) {
   const [subs, setSubs] = useState<Subscription[]>([]);
   const [visits, setVisits] = useState<Visit[]>([]);
   const [notes, setNotes] = useState<Note[]>([]);
@@ -101,6 +101,9 @@ function ClientCard({ p, back }: { p: Profile; back: () => void }) {
   const [total, setTotal] = useState(5);
   const [until, setUntil] = useState("");
   const [err, setErr] = useState("");
+  const [linkEmail, setLinkEmail] = useState("");
+  const [linkBusy, setLinkBusy] = useState(false);
+  const [linkErr, setLinkErr] = useState("");
 
   async function load() {
     const c = db()!;
@@ -113,6 +116,27 @@ function ClientCard({ p, back }: { p: Profile; back: () => void }) {
     setSubs((s.data ?? []) as Subscription[]); setVisits((v.data ?? []) as Visit[]); setNotes((n.data ?? []) as Note[]); setClaims((g.data ?? []) as GiftClaim[]);
   }
   useEffect(() => { void load(); }, [p.id]);
+
+  async function linkAccount(e: React.FormEvent) {
+    e.preventDefault();
+    const email = linkEmail.trim();
+    if (!email) return;
+    setLinkBusy(true); setLinkErr("");
+    const c = db()!;
+    const { data: targetId, error } = await c.rpc("link_offline_profile", { _offline_id: p.id, _email: email });
+    if (error || !targetId) {
+      const msg = error?.message ?? "";
+      if (/account_not_found/i.test(msg)) setLinkErr("Аккаунт с такой почтой не найден. Попросите клиента сначала зарегистрироваться в кабинете.");
+      else if (/offline_profile_not_found/i.test(msg)) setLinkErr("Эта карточка уже связана с аккаунтом.");
+      else setLinkErr("Не получилось связать карточку. Убедитесь, что выполнен обновлённый файл supabase/setup.sql (раздел 11).");
+      setLinkBusy(false);
+      return;
+    }
+    const { data: linked } = await c.from("profiles").select("*").eq("id", targetId as string).maybeSingle();
+    setLinkBusy(false);
+    if (linked) onLinked(linked as Profile);
+    else back();
+  }
 
   async function useOne(s: Subscription) {
     const { error } = await db()!.rpc("use_session", { _sub: s.id, _service: "" });
@@ -152,6 +176,18 @@ function ClientCard({ p, back }: { p: Profile; back: () => void }) {
       </dl>
       {p.wishes && <p className="mt-3 text-muted-foreground">«{p.wishes}»</p>}
     </div>
+
+    {p.offline && (
+      <form onSubmit={linkAccount} className={`${card} space-y-3 border-primary/40`}>
+        <h3 className="font-display text-2xl">Связать с аккаунтом</h3>
+        <p className="text-sm text-muted-foreground">Карточка внесена вручную. Когда клиент зарегистрируется на сайте и назовёт вам свою почту, введите её ниже — абонементы, визиты, заметки и подарки перенесутся в его личный кабинет.</p>
+        <div className="flex flex-wrap gap-2">
+          <input className={`${field} flex-1 min-w-56`} type="email" required placeholder="Почта клиента из кабинета" value={linkEmail} onChange={(e) => { setLinkEmail(e.target.value); setLinkErr(""); }} />
+          <button className={btn} disabled={linkBusy}>{linkBusy ? "Связываю…" : "Связать с аккаунтом"}</button>
+        </div>
+        {linkErr && <p role="alert" className="text-sm text-amber">{linkErr}</p>}
+      </form>
+    )}
 
     <div className={card}>
       <h3 className="font-display text-2xl">Абонементы</h3>

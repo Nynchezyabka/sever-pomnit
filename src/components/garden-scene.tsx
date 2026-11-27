@@ -54,7 +54,7 @@ export function GardenScene({ found, fresh }: { found: number; fresh: number }) 
       </div>
       <p className="mt-2 text-center text-sm text-muted-foreground">
         {next ? <>Следующая находка: <span className="text-foreground">{next.name}</span>{idx === 0 && !tearoomOpen ? " · чайная откроется, когда поляна расцветёт" : ""}</> : idx === 0 ? "Поляна расцвела! Загляните в Тайную чайную →" : "Чайная собрана целиком. Тёплого вам вечера."}
-        {shown > 0 && <span className="block text-xs">Нажмите на находку — там совет.</span>}
+        {shown > 0 && <span className="block text-sm">Нажмите на находку — там совет.</span>}
       </p>
     </div>
   );

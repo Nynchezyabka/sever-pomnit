@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { BOOK_TEMPLATE, BookButton, CopyButton, Logo, PHONE, PhotoSlot, TG_BOOK, TG_CHANNEL, absUrl, meta } from "@/components/site";
+import { BOOK_TEMPLATE, BookButton, CallButton, CopyButton, Logo, PHONE, PhotoSlot, TG_BOOK, TG_CHANNEL, absUrl, meta } from "@/components/site";
 import { TeaRitual } from "@/components/ritual";
+import { BookingForm } from "@/components/booking";
 const tea = { url: "/images/tea-card.jpg" };
 const ginger = { url: "/images/gingerbread.jpg" };
 const sign = { url: "/images/amber_sign.jpg" };
@@ -62,9 +63,13 @@ function Index() {
           </p>
           <div className="mt-9 flex flex-wrap gap-3">
             <BookButton />
+            <CallButton />
             <Link to="/menu" hash="gift" className="inline-flex min-h-11 items-center px-3 text-muted-foreground underline underline-offset-4 hover:text-foreground">Подарить сертификат</Link>
           </div>
-          <p className="mt-5 text-sm text-muted-foreground">Вт–Сб, 8:30–22:00 · <span className="whitespace-nowrap">ЖК «Полярная 25»</span></p>
+          <p className="mt-4 text-sm text-muted-foreground">
+            Не открывается Telegram? Позвоните или <a href="#zapis" className="underline underline-offset-4 hover:text-foreground">оставьте заявку ниже</a>.
+          </p>
+          <p className="mt-3 text-sm text-muted-foreground">Вт–Сб, 8:30–22:00 · <span className="whitespace-nowrap">ЖК «Полярная 25»</span></p>
         </div>
         <div className="relative isolate">
           <img src={tea.url} alt="Травяной чай, шишки, свеча и открытка «Здесь можно не спешить»" className="aspect-[4/5] w-full rounded-[2rem] object-cover shadow-2xl" />
@@ -103,7 +108,7 @@ function Index() {
         </div>
       </section>
 
-      <section className="mx-auto max-w-6xl px-5 py-10 md:py-16">
+      <section id="zapis" className="mx-auto max-w-6xl scroll-mt-24 px-5 py-10 md:py-16">
         <p className="text-sm uppercase tracking-[0.25em] text-amber">Запись</p>
         <h2 className="mt-3 text-3xl sm:text-4xl md:text-5xl">Как записаться</h2>
         <ol className="mt-10 grid gap-4 md:grid-cols-3">
@@ -115,7 +120,8 @@ function Index() {
             <li key={t} className="rounded-3xl border bg-card/70 p-6"><h3 className="text-2xl">{t}</h3><p className="mt-2 text-muted-foreground">{d}</p></li>
           ))}
         </ol>
-        <div className="mt-8 flex flex-wrap gap-3"><CopyButton text={BOOK_TEMPLATE}>Скопировать сообщение</CopyButton><BookButton>Открыть Telegram</BookButton></div>
+        <div className="mt-8 flex flex-wrap gap-3"><CopyButton text={BOOK_TEMPLATE}>Скопировать сообщение</CopyButton><BookButton>Открыть Telegram</BookButton><CallButton /></div>
+        <div className="mt-8 max-w-2xl"><BookingForm /></div>
       </section>
 
       <TeaRitual />
