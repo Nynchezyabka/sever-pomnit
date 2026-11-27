@@ -1,5 +1,5 @@
 import { createBackendHandler } from "./core.mjs";
-import { createYdbStore } from "./ydb-store.mjs";
+import { createYdbStore, setInvocationToken } from "./ydb-store.mjs";
 
 let cachedHandler = null;
 
@@ -20,6 +20,7 @@ function getHandler() {
   return cachedHandler;
 }
 
-export async function handler(event) {
+export async function handler(event, context) {
+  setInvocationToken(context?.token?.access_token, context?.token?.expires_in);
   return getHandler()(event);
 }

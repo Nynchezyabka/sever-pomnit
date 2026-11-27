@@ -2,7 +2,44 @@ import { randomUUID } from "node:crypto";
 import ydb from "ydb-sdk";
 import { ApiError } from "./core.mjs";
 
-const { AUTO_TX, Driver, TypedData, TypedValues, Types, getCredentialsFromEnv } = ydb;
+const { AUTO_TX, Driver, TokenAuthService, TypedData, TypedValues, Types } = ydb;
+
+let latestToken = "";
+let latestTokenExp = 0;
+
+export function setInvocationToken(token, expiresInSec = 3600) {
+  if (token) {
+    latestToken = String(token);
+    latestTokenExp = Date.now() + Math.max(60, Number(expiresInSec) - 120) * 1000;
+  }
+}
+
+function createCloudAuthService() {
+  return {
+    async getAuthMetadata() {
+      let token = process.env.YDB_ACCESS_TOKEN_CREDENTIALS || "";
+      if (!token && latestToken && Date.now() < latestTokenExp) {
+        token = latestToken;
+      }
+      if (!token) {
+        const res = await fetch(
+          "http://169.254.169.254/computeMetadata/v1/instance/service-accounts/default/token",
+          { headers: { "Metadata-Flavor": "Google" }, signal: AbortSignal.timeout(3000) },
+        );
+        if (!res.ok) {
+          throw new Error(`Metadata token request failed: ${res.status}`);
+        }
+        const json = await res.json();
+        token = String(json.access_token || "");
+        setInvocationToken(token, json.expires_in);
+      }
+      if (!token) {
+        throw new Error("No IAM token available for YDB (attach a service account to the Cloud Function)");
+      }
+      return new TokenAuthService(token).getAuthMetadata();
+    },
+  };
+}
 
 const TX_RW = { serializableReadWrite: {} };
 
@@ -37,12 +74,12 @@ async function getDriver(rawEndpoint, rawDatabase) {
   }
   if (!driverPromise) {
     driverPromise = (async () => {
-      const authService = getCredentialsFromEnv();
+      const authService = createCloudAuthService();
       const driver = new Driver({ endpoint, database, authService });
-      const ok = await driver.ready(10000);
+      const ok = await driver.ready(8000);
       if (!ok) {
         driverPromise = null;
-        throw new Error("YDB driver did not become ready within 10s");
+        throw new Error("YDB driver did not become ready within 8s");
       }
       return driver;
     })();
