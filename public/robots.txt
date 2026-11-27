@@ -1,14 +1,14 @@
 User-agent: Googlebot
 Allow: /
+Disallow: /kabinet
+Disallow: /kartoteka
 
-User-agent: Bingbot
+User-agent: Yandex
 Allow: /
-
-User-agent: Twitterbot
-Allow: /
-
-User-agent: facebookexternalhit
-Allow: /
+Disallow: /kabinet
+Disallow: /kartoteka
 
 User-agent: *
 Allow: /
+Disallow: /kabinet
+Disallow: /kartoteka

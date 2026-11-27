@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { addCare, branches, careLeft, diarySummary, empty, MAX_BRANCHES, planLeft, type GardenState } from "./garden";
+import { addCare, branches, careLeft, diarySummary, empty, exportGardenCode, importGardenCode, MAX_BRANCHES, planLeft, type GardenState } from "./garden";
 import { SCENES } from "./garden-scenes";
 
 describe("garden", () => {
@@ -30,7 +30,7 @@ describe("garden", () => {
 });
 
 describe("daily limits", () => {
-  it("water counts at most 8 glasses (2 litres) a day", () => {
+  it("water counts at most 8 glasses a day", () => {
     let s = empty; for (let i = 0; i < 10; i++) s = addCare(s, "water", "2026-11-21");
     expect(s.water).toBe(8);
     expect(careLeft(s, "water", "2026-11-21")).toBe(0);
@@ -43,5 +43,14 @@ describe("daily limits", () => {
   });
   it("the two scenes hold 14 finds in total", () => {
     expect(SCENES.reduce((a, sc) => a + sc.items.length, 0)).toBe(MAX_BRANCHES);
+  });
+  it("exports and imports garden state and diary by code", () => {
+    const state = addCare(addCare(empty, "water", "2026-11-27"), "stretch", "2026-11-27");
+    const diary = [{ date: "27.11", energy: 4, sleep: 5, lightness: 3, mood: 4, note: "Тепло и спокойно" }];
+    const code = exportGardenCode(state, diary);
+    expect(code.startsWith("SP1:")).toBe(true);
+    const restored = importGardenCode(code);
+    expect(restored).toEqual({ state, diary });
+    expect(importGardenCode("broken-code")).toBeNull();
   });
 });

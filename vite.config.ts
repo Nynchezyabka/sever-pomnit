@@ -1,19 +1,45 @@
-// @lovable.dev/vite-tanstack-config already includes the following — do NOT add them manually
-// or the app will break with duplicate plugins:
-//   - TanStack devtools (dev-only, first), tanstackStart, viteReact, tailwindcss, tsConfigPaths,
-//     nitro (build-only using cloudflare as a default target), VITE_* env injection, @ path alias,
-//     React/TanStack dedupe, error logger plugins, and sandbox detection (port/host/strictPort).
-// Never set ssr.external or resolve.external: the Worker has no runtime module resolution, so
-// the build fails. Never add compression (compressPublicAssets, vite-plugin-compression):
-// hosting already compresses at the edge.
-import { defineConfig } from "@lovable.dev/vite-tanstack-config";
+import { tanstackStart } from "@tanstack/react-start/plugin/vite";
+import tailwindcss from "@tailwindcss/vite";
+import viteReact from "@vitejs/plugin-react";
+import { defineConfig } from "vite";
 import { typografPlugin } from "./scripts/typograf-plugin.mjs";
 
+const siteUrl = process.env["VITE_SITE_URL"]?.replace(/\/+$/, "");
+
 export default defineConfig({
-  plugins: [typografPlugin()],
-  tanstackStart: {
-    server: { entry: "server" },
-    // STATIC_BUILD=1 npm run build → plain static site for Layero; data goes browser → database directly.
-    ...(process.env["STATIC_BUILD"] ? { spa: { enabled: true } } : {}),
+  resolve: {
+    tsconfigPaths: true,
   },
+  plugins: [
+    typografPlugin(),
+    tailwindcss(),
+    tanstackStart({
+      server: { entry: "server" },
+      prerender: {
+        enabled: true,
+        autoStaticPathsDiscovery: true,
+        autoSubfolderIndex: true,
+        crawlLinks: false,
+      },
+      pages: [
+        { path: "/", sitemap: { priority: 1.0, changefreq: "weekly" } },
+        { path: "/menu", sitemap: { priority: 0.9, changefreq: "weekly" } },
+        { path: "/master", sitemap: { priority: 0.8, changefreq: "monthly" } },
+        { path: "/sad", sitemap: { priority: 0.7, changefreq: "monthly" } },
+        { path: "/privacy", sitemap: { priority: 0.2, changefreq: "yearly" } },
+        { path: "/kabinet", sitemap: { exclude: true } },
+        { path: "/kartoteka", sitemap: { exclude: true } },
+      ],
+      ...(siteUrl
+        ? {
+            sitemap: {
+              enabled: true,
+              host: siteUrl,
+              outputPath: "sitemap.xml",
+            },
+          }
+        : {}),
+    }),
+    viteReact(),
+  ],
 });

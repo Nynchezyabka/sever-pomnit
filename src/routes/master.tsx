@@ -1,8 +1,13 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { BookButton, GhostButton, PHONE, PhotoSlot, TG_CHANNEL, meta } from "@/components/site";
+import { BookButton, CallButton, GhostButton, PHONE, PhotoSlot, TG_CHANNEL, meta } from "@/components/site";
 
 export const Route = createFileRoute("/master")({
-  head: () => meta("Александра Суворова — мастер ручного массажа · Север помнит", "О мастере, первый визит, противопоказания и правила записи. Приём по вторникам–субботам с 8:30 до 22:00 в ЖК «Полярная 25»."),
+  head: () =>
+    meta(
+      "Александра Суворова — мастер ручного массажа · Север помнит",
+      "О мастере, первый визит, противопоказания и правила записи. Приём по вторникам–субботам с 8:30 до 22:00 в Москве, ЖК «Полярная 25».",
+      { path: "/master", image: "/images/amber_sign.jpg" },
+    ),
   component: Master,
 });
 
@@ -28,13 +33,13 @@ function Master() {
             <div className="rounded-2xl border bg-card/70 p-5"><dt className="text-sm text-muted-foreground">Приём</dt><dd className="mt-1 text-xl">Вт–Сб, 8:30–22:00</dd></div>
             <div className="rounded-2xl border bg-card/70 p-5"><dt className="text-sm text-muted-foreground">Телефон</dt><dd className="mt-1 text-xl"><a href="tel:+79166363660">{PHONE}</a></dd></div>
           </dl>
-          <div className="mt-8 flex flex-wrap gap-3"><BookButton /><GhostButton href={TG_CHANNEL}>Канал в Telegram</GhostButton></div>
+          <div className="mt-8 flex flex-wrap gap-3"><BookButton /><CallButton /><GhostButton href={TG_CHANNEL}>Канал в Telegram</GhostButton></div>
         </div>
       </div>
 
       <section className="mt-20">
         <h2 className="text-3xl sm:text-4xl md:text-5xl">Если вы у меня впервые</h2>
-        <p className="mt-4 max-w-2xl text-muted-foreground">Перед сеансом я коротко расспрошу о самочувствии и пожеланиях. Вот ещё несколько вещей, которые помогут чувствовать себя спокойнее.</p>
+        <p className="mt-4 max-w-2xl text-muted-foreground">Перед сеансом я коротко расспрошу о комфорте и пожеланиях. Вот ещё несколько вещей, которые помогут чувствовать себя спокойнее.</p>
         <div className="mt-8 grid gap-4 sm:grid-cols-2">
           {firstVisit.map(([t, d]) => <div key={t} className="rounded-3xl border bg-card/70 p-6"><h3 className="text-2xl">{t}</h3><p className="mt-2 text-muted-foreground">{d}</p></div>)}
         </div>

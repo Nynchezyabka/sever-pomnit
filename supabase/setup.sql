@@ -216,13 +216,14 @@ CREATE POLICY "gifts read" ON public.gift_claims FOR SELECT TO authenticated USI
 CREATE POLICY "gifts master" ON public.gift_claims FOR ALL TO authenticated USING (public.is_master()) WITH CHECK (public.is_master());
 
 -- 11. Клиенты, которых мастер вносит вручную (ещё без регистрации на сайте).
---     Когда такой клиент позже зарегистрируется с тем же телефоном, его карточка
---     с абонементами, визитами и подарками сама привяжется к новому входу.
+--     Чтобы связать такую карточку с аккаунтом клиента, мастер в картотеке
+--     вводит подтверждённую клиентом почту и нажимает «Связать с аккаунтом».
+--     Автоматическая привязка по номеру телефона отключена в целях безопасности.
 ALTER TABLE public.profiles DROP CONSTRAINT IF EXISTS profiles_id_fkey;
 ALTER TABLE public.profiles ALTER COLUMN id SET DEFAULT gen_random_uuid();
 ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS offline boolean NOT NULL DEFAULT false;
 
--- связанные таблицы следуют за карточкой при привязке
+-- связанные таблицы следуют за карточкой при удалении/обновлении
 ALTER TABLE public.subscriptions DROP CONSTRAINT IF EXISTS subscriptions_client_id_fkey;
 ALTER TABLE public.subscriptions ADD CONSTRAINT subscriptions_client_id_fkey FOREIGN KEY (client_id) REFERENCES public.profiles(id) ON DELETE CASCADE ON UPDATE CASCADE;
 ALTER TABLE public.visits DROP CONSTRAINT IF EXISTS visits_client_id_fkey;
@@ -238,31 +239,65 @@ DROP POLICY IF EXISTS "profile master delete" ON public.profiles;
 CREATE POLICY "profile master insert" ON public.profiles FOR INSERT TO authenticated WITH CHECK (public.is_master() AND offline);
 CREATE POLICY "profile master delete" ON public.profiles FOR DELETE TO authenticated USING (public.is_master() AND offline);
 
-CREATE OR REPLACE FUNCTION public.phone_key(_p text) RETURNS text LANGUAGE sql IMMUTABLE AS $$
-  SELECT right(regexp_replace(coalesce(_p,''), '\D', '', 'g'), 10)
-$$;
+DROP FUNCTION IF EXISTS public.phone_key(text);
 
 CREATE OR REPLACE FUNCTION public.handle_new_user() RETURNS trigger
 LANGUAGE plpgsql SECURITY DEFINER SET search_path = public AS $$
-DECLARE _phone text := coalesce(NEW.raw_user_meta_data->>'phone','');
-        _match uuid;
 BEGIN
-  IF length(public.phone_key(_phone)) = 10 THEN
-    SELECT id INTO _match FROM public.profiles
-     WHERE offline AND public.phone_key(phone) = public.phone_key(_phone)
-     ORDER BY created_at LIMIT 1;
-  END IF;
-  IF _match IS NOT NULL THEN
-    UPDATE public.profiles SET id = NEW.id, offline = false,
-      full_name = coalesce(nullif(full_name,''), NEW.raw_user_meta_data->>'full_name', '')
-     WHERE id = _match;
-  ELSE
-    INSERT INTO public.profiles (id, full_name, phone)
-    VALUES (NEW.id, coalesce(NEW.raw_user_meta_data->>'full_name',''), _phone)
-    ON CONFLICT (id) DO NOTHING;
-  END IF;
+  INSERT INTO public.profiles (id, full_name, phone)
+  VALUES (
+    NEW.id,
+    coalesce(NEW.raw_user_meta_data->>'full_name', ''),
+    coalesce(NEW.raw_user_meta_data->>'phone', '')
+  )
+  ON CONFLICT (id) DO NOTHING;
   RETURN NEW;
 END $$;
+
+CREATE OR REPLACE FUNCTION public.link_offline_profile(_offline_id uuid, _email text) RETURNS uuid
+LANGUAGE plpgsql SECURITY DEFINER SET search_path = public AS $$
+DECLARE
+  _target_id uuid;
+  _off public.profiles;
+BEGIN
+  IF NOT public.is_master() THEN RAISE EXCEPTION 'only master'; END IF;
+
+  SELECT * INTO _off FROM public.profiles WHERE id = _offline_id AND offline FOR UPDATE;
+  IF NOT FOUND THEN RAISE EXCEPTION 'offline_profile_not_found'; END IF;
+
+  SELECT id INTO _target_id FROM auth.users WHERE lower(email) = lower(trim(_email)) LIMIT 1;
+  IF _target_id IS NULL THEN RAISE EXCEPTION 'account_not_found'; END IF;
+  IF _target_id = _offline_id THEN RAISE EXCEPTION 'same_profile'; END IF;
+
+  INSERT INTO public.profiles (id, full_name, phone, telegram, oil, tea, pressure, silence, wishes)
+  VALUES (_target_id, _off.full_name, _off.phone, _off.telegram, _off.oil, _off.tea, _off.pressure, _off.silence, _off.wishes)
+  ON CONFLICT (id) DO UPDATE SET
+    full_name = coalesce(nullif(public.profiles.full_name, ''), EXCLUDED.full_name),
+    phone = coalesce(nullif(public.profiles.phone, ''), EXCLUDED.phone),
+    telegram = coalesce(nullif(public.profiles.telegram, ''), EXCLUDED.telegram),
+    oil = coalesce(nullif(public.profiles.oil, ''), EXCLUDED.oil),
+    tea = coalesce(nullif(public.profiles.tea, ''), EXCLUDED.tea),
+    pressure = coalesce(nullif(public.profiles.pressure, ''), EXCLUDED.pressure),
+    silence = public.profiles.silence OR EXCLUDED.silence,
+    wishes = coalesce(nullif(public.profiles.wishes, ''), EXCLUDED.wishes),
+    offline = false;
+
+  UPDATE public.subscriptions SET client_id = _target_id WHERE client_id = _offline_id;
+  UPDATE public.visits SET client_id = _target_id WHERE client_id = _offline_id;
+  UPDATE public.client_notes SET client_id = _target_id WHERE client_id = _offline_id;
+
+  INSERT INTO public.gift_claims (client_id, gift, claimed_on, created_at)
+  SELECT _target_id, gift, claimed_on, created_at
+  FROM public.gift_claims WHERE client_id = _offline_id
+  ON CONFLICT (client_id, gift) DO NOTHING;
+  DELETE FROM public.gift_claims WHERE client_id = _offline_id;
+
+  DELETE FROM public.profiles WHERE id = _offline_id AND offline;
+
+  RETURN _target_id;
+END $$;
+REVOKE EXECUTE ON FUNCTION public.link_offline_profile(uuid, text) FROM PUBLIC, anon;
+GRANT EXECUTE ON FUNCTION public.link_offline_profile(uuid, text) TO authenticated;
 
 -- не беспокоить мастера оповещением о клиенте, которого она внесла сама
 CREATE OR REPLACE FUNCTION public.on_new_profile() RETURNS trigger
