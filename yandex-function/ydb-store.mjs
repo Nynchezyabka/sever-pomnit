@@ -17,7 +17,21 @@ function optUtf8(v) {
 
 let driverPromise = null;
 
-async function getDriver(endpoint, database) {
+function normalizeYdbConfig(endpoint, database) {
+  let cleanEndpoint = String(endpoint || "").trim();
+  let cleanDatabase = String(database || "").trim();
+  if (/^grpcs?:\/\//i.test(cleanEndpoint) && cleanEndpoint.includes("?")) {
+    try {
+      const u = new URL(cleanEndpoint);
+      cleanEndpoint = `${u.protocol}//${u.host}`;
+      cleanDatabase ||= u.searchParams.get("database") || "";
+    } catch { /* keep raw value if URL parsing fails */ }
+  }
+  return { endpoint: cleanEndpoint, database: cleanDatabase };
+}
+
+async function getDriver(rawEndpoint, rawDatabase) {
+  const { endpoint, database } = normalizeYdbConfig(rawEndpoint, rawDatabase);
   if (!endpoint || !database) {
     throw new Error("YDB_ENDPOINT and YDB_DATABASE must be set");
   }

@@ -18,8 +18,8 @@
 2. Тип базы: **Serverless**.
 3. Имя: например `sever-pomnit-db`. Нажмите **Создать**.
 4. Дождитесь статуса **Running** и сохраните со страницы обзора базы:
-   - **Эндпоинт** (`YDB_ENDPOINT`), обычно `grpcs://ydb.serverless.yandexcloud.net:2135`
-   - **Размещение / База данных** (`YDB_DATABASE`), строка вида `/ru-central1/b1g.../etn...`
+   - **Эндпоинт** (`YDB_ENDPOINT`), только адрес сервера без `/?database=...`: `grpcs://ydb.serverless.yandexcloud.net:2135`
+   - **Размещение / База данных** (`YDB_DATABASE`), строка вида `/ru-central1/b1g.../etn...` *(это вторая часть из строки подключения)*
 5. Слева откройте **Навигация → SQL-запрос**, вставьте целиком содержимое файла `yandex-function/schema.yql` и нажмите **Выполнить**.
    Должны создаться 7 таблиц: `users`, `profiles`, `subscriptions`, `visits`, `client_notes`, `booking_requests`, `gift_claims`.
 
